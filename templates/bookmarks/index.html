@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Bookmarks - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-bold">Bookmarks</h1>
+            <p class="text-zinc-500 text-[13px]">@{{ current_user.username }}</p>
+        </div>
+    </div>
+</div>
+
+{% if posts %}
+    {% for post in posts %}
+        {% include 'components/post_card.html' %}
+    {% endfor %}
+{% else %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+    </div>
+    <h3 class="font-bold text-lg mb-1">Save posts for later</h3>
+    <p class="text-zinc-500 text-[15px]">Bookmark posts to find them quickly in the future.</p>
+</div>
+{% endif %}
+
+{% endblock %}

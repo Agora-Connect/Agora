@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}{{ conversation.participant.display_name }} - Messages{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-3">
+    <a href="{{ url_for('messages.inbox') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300 flex-shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <a href="{{ url_for('profile.view', username=conversation.participant.username) }}"
+       class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <div class="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+            {{ conversation.participant.display_name[:2]|upper }}
+        </div>
+        <div>
+            <p class="font-bold text-[15px] leading-tight">{{ conversation.participant.display_name }}</p>
+            <p class="text-zinc-500 text-[13px]">@{{ conversation.participant.username }}</p>
+        </div>
+    </a>
+</div>
+
+<!-- Messages -->
+<div class="flex flex-col gap-2 px-4 py-4 min-h-[60vh]">
+    {% for msg in conversation.messages %}
+    <div class="flex {{ 'justify-end' if msg.sender_id == current_user.id else 'justify-start' }}">
+        <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed
+                    {{ 'bg-red-600 text-white rounded-br-sm' if msg.sender_id == current_user.id else 'bg-zinc-800 text-white rounded-bl-sm' }}">
+            {{ msg.content }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Composer -->
+<div class="sticky bottom-0 bg-black border-t border-zinc-800 px-4 py-3 md:bottom-0 bottom-14">
+    <form action="{{ url_for('messages.conversation', conversation_id=conversation.id) }}" method="POST">
+        <div class="flex items-center gap-2">
+            <input type="text" name="message" placeholder="Start a new message"
+                   class="flex-1 bg-zinc-900 rounded-full px-4 py-2.5 text-white placeholder-zinc-500
+                          outline-none focus:ring-1 focus:ring-red-600 text-[15px]">
+            <button type="submit"
+                    class="w-10 h-10 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors flex-shrink-0">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

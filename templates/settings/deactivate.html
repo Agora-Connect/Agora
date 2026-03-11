@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Deactivate Account - Settings{% endblock %}
+
+{% block content %}
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('settings.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-xl font-bold text-red-400">Deactivate Account</h1>
+</div>
+
+<div class="px-4 py-8 text-center">
+    <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.07 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+    </div>
+    <h2 class="text-xl font-bold mb-2">Are you sure?</h2>
+    <p class="text-zinc-400 text-[15px] mb-8 leading-relaxed">
+        Deactivating your account will remove your profile, posts, and all activity from Agora.
+        This action cannot be undone.
+    </p>
+    <form action="{{ url_for('auth.landing') }}" method="GET" class="space-y-3">
+        <button type="submit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-full transition-colors text-[16px]">
+            Yes, deactivate my account
+        </button>
+        <a href="{{ url_for('settings.index') }}"
+           class="block w-full border border-zinc-700 hover:border-zinc-500 text-white font-semibold py-3 rounded-full transition-colors text-[15px]">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

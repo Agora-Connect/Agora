@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }} - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('main.home') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-xl font-bold">Event</h1>
+</div>
+
+<!-- Event Banner -->
+<div class="h-40 bg-gradient-to-br from-red-900/60 to-zinc-900 relative flex items-end p-4">
+    <span class="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full backdrop-blur-sm">
+        {{ event.type }}
+    </span>
+</div>
+
+<div class="px-4 py-4 border-b border-zinc-800">
+    <h2 class="text-2xl font-bold mb-3">{{ event.title }}</h2>
+    <p class="text-zinc-300 text-[15px] leading-relaxed mb-4">{{ event.description }}</p>
+
+    <div class="space-y-2 mb-4">
+        <div class="flex items-center gap-2 text-[14px] text-zinc-400">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span>{{ event.date }} at {{ event.time }}</span>
+        </div>
+        <div class="flex items-center gap-2 text-[14px] text-zinc-400">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span>{{ event.location }}</span>
+        </div>
+        <div class="flex items-center gap-2 text-[14px] text-zinc-400">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span>{{ event.rsvp_count }} attending · {{ event.post_count }} posts</span>
+        </div>
+    </div>
+
+    <form action="#" method="POST">
+        <button type="submit"
+                class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-full transition-colors text-[15px]">
+            RSVP
+        </button>
+    </form>
+</div>
+
+<!-- Event feed header -->
+<div class="px-4 py-3 border-b border-zinc-800">
+    <p class="font-bold text-[16px]">Posts about this event</p>
+</div>
+
+{% endblock %}

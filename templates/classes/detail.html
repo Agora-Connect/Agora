@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.code }} - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('classes.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <div>
+        <h1 class="text-xl font-bold">{{ course.code }}</h1>
+        <p class="text-zinc-500 text-[13px]">{{ course.name }}</p>
+    </div>
+</div>
+
+<!-- Composer -->
+{% with courses=[course] %}
+{% include 'components/post_composer.html' %}
+{% endwith %}
+
+<!-- Posts -->
+{% for post in posts %}
+    {% include 'components/post_card.html' %}
+{% endfor %}
+
+{% if not posts %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <h3 class="font-bold text-lg mb-1">No posts in {{ course.code }} yet</h3>
+    <p class="text-zinc-500 text-[15px]">Be the first to post something!</p>
+</div>
+{% endif %}
+
+{% endblock %}

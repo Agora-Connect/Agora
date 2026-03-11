@@ -1,0 +1,64 @@
+{% extends 'base_auth.html' %}
+{% block title %}Set up your profile - Agora{% endblock %}
+
+{% block content %}
+<div>
+    <div class="flex gap-1.5 mb-6">
+        <div class="h-1 flex-1 bg-red-600 rounded-full"></div>
+        <div class="h-1 flex-1 bg-red-600 rounded-full"></div>
+        <div class="h-1 flex-1 bg-red-600 rounded-full"></div>
+        <div class="h-1 flex-1 bg-red-600 rounded-full"></div>
+        <div class="h-1 flex-1 bg-red-600 rounded-full"></div>
+    </div>
+
+    <p class="text-sm text-zinc-500 mb-1">Step 5 of 5</p>
+    <h1 class="text-2xl font-bold mb-2">Set up your profile</h1>
+    <p class="text-zinc-400 text-sm mb-6">Optional — you can do this later</p>
+
+    <form action="{{ url_for('main.home') }}" method="GET" class="space-y-5">
+
+        <!-- Avatar Upload -->
+        <div class="flex justify-center">
+            <label class="relative cursor-pointer group">
+                <div class="w-24 h-24 rounded-full bg-red-600 flex items-center justify-center
+                            text-white text-2xl font-bold group-hover:opacity-80 transition-opacity">
+                    AR
+                </div>
+                <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center
+                            opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <input type="file" accept="image/*" class="hidden">
+            </label>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between mb-1.5">
+                <label class="text-sm font-medium text-zinc-400">Bio</label>
+                <span class="text-xs text-zinc-600">0/160</span>
+            </div>
+            <textarea name="bio" placeholder="Tell your campus about yourself..."
+                      maxlength="160" rows="3"
+                      class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                             rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none
+                             transition-colors resize-none text-[15px]"></textarea>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-full
+                       transition-colors text-[16px]">
+            Complete Setup
+        </button>
+
+        <a href="{{ url_for('main.home') }}"
+           class="block text-center text-zinc-500 hover:text-zinc-300 text-sm transition-colors">
+            Skip for now
+        </a>
+
+    </form>
+</div>
+{% endblock %}

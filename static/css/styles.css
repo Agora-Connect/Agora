@@ -1,0 +1,7 @@
+/* Agora - custom overrides (Tailwind handles most styling via CDN) */
+* { -webkit-font-smoothing: antialiased; }
+details summary::-webkit-details-marker { display: none; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 2px; }
+textarea:focus { outline: none; }

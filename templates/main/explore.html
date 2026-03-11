@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Explore - Agora{% endblock %}
+
+{% block content %}
+
+<!-- Header with Search -->
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3">
+    <form action="{{ url_for('main.search') }}" method="GET">
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="q" placeholder="Search Agora"
+                   class="w-full bg-zinc-900 rounded-full pl-10 pr-4 py-2.5 text-white
+                          placeholder-zinc-500 outline-none focus:ring-1 focus:ring-red-600 text-[15px]">
+        </div>
+    </form>
+</div>
+
+<!-- Trending Topics -->
+<div class="px-4 py-4">
+    <h2 class="text-xl font-bold mb-4">What's happening on campus</h2>
+
+    <div class="space-y-0 rounded-2xl overflow-hidden bg-zinc-900">
+        {% set trending = [
+            ('CSCI 411', 'databases', '1.2K posts', 'Course'),
+            ('Hackathon 2026', 'hackathon2026', '8.7K posts', 'Tech Event'),
+            ('Finals Week', 'finalsweek', '4.5K posts', 'Trending'),
+            ('Huskies', 'huskies', '3.1K posts', 'Sports'),
+            ('Study Rooms', 'studyrooms', '892 posts', 'Campus'),
+        ] %}
+        {% for name, tag, count, category in trending %}
+        <a href="{{ url_for('main.search', q='#' + tag) }}"
+           class="block p-4 hover:bg-zinc-800 transition-colors
+                  {{ '' if loop.last else 'border-b border-zinc-800' }}">
+            <p class="text-xs text-zinc-500">{{ category }}</p>
+            <p class="font-bold text-[15px] mt-0.5">{{ name }}</p>
+            <p class="text-xs text-zinc-500 mt-0.5">#{{ tag }} · {{ count }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Suggested People -->
+<div class="px-4 py-4 border-t border-zinc-800">
+    <h2 class="text-xl font-bold mb-4">Who to follow</h2>
+    <div class="space-y-0 rounded-2xl overflow-hidden bg-zinc-900">
+        {% from 'components/user_card.html' import user_card_inline %}
+        {% set users = [] %}
+        {{ '' }}
+    </div>
+</div>
+
+{% endblock %}

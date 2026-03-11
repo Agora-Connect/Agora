@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Questions Forum - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center justify-between">
+    <h1 class="text-xl font-bold">Questions Forum</h1>
+    <a href="{{ url_for('forum.index') }}"
+       class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded-full text-[14px] transition-colors">
+        Ask Question
+    </a>
+</div>
+
+<!-- Filter tabs -->
+<div class="flex border-b border-zinc-800 px-4 gap-2 py-2">
+    {% for f in ['All Courses', 'CSCI 411', 'CSCI 351', 'MATH 221'] %}
+    <a href="#"
+       class="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors
+              {{ 'bg-red-600 text-white' if loop.first else 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white' }}">
+        {{ f }}
+    </a>
+    {% endfor %}
+</div>
+
+{% for problem in problems %}
+<a href="{{ url_for('forum.detail', problem_id=problem.id) }}"
+   class="block px-4 py-4 border-b border-zinc-800 hover:bg-zinc-950 transition-colors">
+    <div class="flex items-start gap-3">
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-xs bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded-full">
+                    {{ problem.course.code }}
+                </span>
+                {% if problem.has_accepted_answer %}
+                <span class="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Solved
+                </span>
+                {% endif %}
+            </div>
+
+            <h3 class="font-bold text-[16px] leading-snug mb-1">{{ problem.title }}</h3>
+            <p class="text-zinc-500 text-[14px] line-clamp-2 leading-relaxed">{{ problem.description }}</p>
+
+            <div class="flex items-center gap-4 mt-2 text-[13px] text-zinc-500">
+                <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="{{ 'currentColor' if problem.is_upvoted_by_me else 'none' }}"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5 15l7-7 7 7"/>
+                    </svg>
+                    {{ problem.upvote_count }}
+                </span>
+                <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    {{ problem.answer_count }} answers
+                </span>
+                <span>{{ problem.created_at|timeago }}</span>
+                <span>by
+                    <span class="text-zinc-300 hover:underline">{{ problem.author.display_name }}</span>
+                </span>
+            </div>
+
+            {% if problem.tags %}
+            <div class="flex flex-wrap gap-1 mt-2">
+                {% for tag in problem.tags %}
+                <span class="text-xs text-red-400 bg-red-600/5 px-2 py-0.5 rounded-full">#{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</a>
+{% endfor %}
+
+{% if not problems %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <h3 class="font-bold text-lg mb-1">No questions yet</h3>
+    <p class="text-zinc-500 text-[15px]">Be the first to ask a question!</p>
+</div>
+{% endif %}
+
+{% endblock %}

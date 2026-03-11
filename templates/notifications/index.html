@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Notifications - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3">
+    <h1 class="text-xl font-bold">Notifications</h1>
+</div>
+
+{% if notifications %}
+    {% for n in notifications %}
+    <div class="flex items-start gap-3 px-4 py-3 border-b border-zinc-800 hover:bg-zinc-950 transition-colors
+                {{ 'bg-red-600/5' if not n.is_read else '' }}">
+
+        <!-- Icon -->
+        <div class="flex-shrink-0 mt-0.5">
+            {% if n.type == 'like' %}
+            <div class="w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+            {% elif n.type == 'follow' %}
+            <div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+            </div>
+            {% elif n.type == 'reply' %}
+            <div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+            </div>
+            {% elif n.type == 'repost' %}
+            <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </div>
+            {% else %}
+            <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+            <!-- Actors -->
+            <div class="flex items-center gap-1 flex-wrap mb-1">
+                {% for actor in n.actors[:3] %}
+                <a href="{{ url_for('profile.view', username=actor.username) }}">
+                    <div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold">
+                        {{ actor.display_name[:2]|upper }}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <p class="text-[15px]">
+                <a href="{{ url_for('profile.view', username=n.actors[0].username) }}"
+                   class="font-bold hover:underline">{{ n.actors[0].display_name }}</a>
+                {{ n.message }}
+            </p>
+            {% if n.post_preview %}
+            <p class="text-zinc-500 text-[14px] mt-0.5 truncate">{{ n.post_preview }}</p>
+            {% endif %}
+            <p class="text-zinc-600 text-[13px] mt-1">{{ n.created_at|timeago }}</p>
+        </div>
+
+        {% if not n.is_read %}
+        <div class="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <h3 class="font-bold text-lg mb-1">Nothing to see here — yet</h3>
+    <p class="text-zinc-500 text-[15px]">When someone interacts with you, it will show up here.</p>
+</div>
+{% endif %}
+
+{% endblock %}

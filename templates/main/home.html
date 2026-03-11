@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Home - Agora{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10">
+    <div class="px-4 py-3">
+        <h1 class="text-xl font-bold">Home</h1>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex">
+        <a href="{{ url_for('main.home', tab='following') }}"
+           class="flex-1 text-center py-3 text-[15px] font-medium transition-colors relative
+                  {{ 'text-white' if tab == 'following' else 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900' }}">
+            Following
+            {% if tab == 'following' %}
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-red-600 rounded-full"></div>
+            {% endif %}
+        </a>
+        <a href="{{ url_for('main.home', tab='university') }}"
+           class="flex-1 text-center py-3 text-[15px] font-medium transition-colors relative
+                  {{ 'text-white' if tab == 'university' else 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900' }}">
+            University
+            {% if tab == 'university' %}
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-red-600 rounded-full"></div>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- Post Composer -->
+{% with courses=[] %}
+{% include 'components/post_composer.html' %}
+{% endwith %}
+
+<!-- Feed -->
+{% if posts %}
+    {% for post in posts %}
+        {% include 'components/post_card.html' %}
+    {% endfor %}
+{% else %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/>
+        </svg>
+    </div>
+    <h3 class="font-bold text-lg mb-1">Nothing here yet</h3>
+    <p class="text-zinc-500 text-[15px]">Follow some accounts to see posts here</p>
+</div>
+{% endif %}
+
+{% endblock %}
