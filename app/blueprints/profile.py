@@ -1,33 +1,75 @@
-from flask import Blueprint, render_template
-from app.mock_data import USERS, POSTS, CURRENT_USER
+from flask import Blueprint, render_template, redirect, url_for, request, abort
+from flask_login import login_required, current_user
+from app.models import db, User, Post, Follow, UpvoteOnPost, CommentOnPost
+from app.utils import enrich_posts
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
 
 
 @profile_bp.route('/<username>')
+@login_required
 def view(username):
-    user = next((u for u in USERS if u['username'] == username), None)
-    if not user:
-        user = CURRENT_USER
-    user_posts = [p for p in POSTS if p['author']['username'] == username]
-    is_own = (username == CURRENT_USER['username'])
-    return render_template('profile/profile.html', user=user, posts=user_posts,
-                           is_own=is_own, tab='posts', active_page='profile')
+    user = User.query.filter_by(username=username).first_or_404()
+    tab = request.args.get('tab', 'posts')
+    is_own = (user.id == current_user.id)
+    is_following = (Follow.query.filter_by(follower_id=current_user.id,
+                                           followed_id=user.id).first() is not None)
+
+    comments = []
+    if tab == 'likes':
+        liked_ids = [u.post_id for u in
+                     UpvoteOnPost.query.filter_by(user_id=user.id).all()]
+        posts = (Post.query.filter(Post.id.in_(liked_ids))
+                 .order_by(Post.created_at.desc()).limit(30).all()) if liked_ids else []
+    elif tab == 'replies':
+        comments = (CommentOnPost.query.filter_by(user_id=user.id)
+                    .order_by(CommentOnPost.created_at.desc()).limit(30).all())
+        posts = []
+    elif tab == 'media':
+        posts = (Post.query.filter_by(user_id=user.id)
+                 .filter(Post.image_url.isnot(None))
+                 .order_by(Post.created_at.desc()).limit(30).all())
+    else:
+        posts = (Post.query.filter_by(user_id=user.id)
+                 .order_by(Post.created_at.desc()).limit(30).all())
+
+    posts = enrich_posts(posts, current_user.id)
+    return render_template('profile/profile.html', user=user, posts=posts,
+                           comments=comments, is_own=is_own,
+                           is_following=is_following, tab=tab,
+                           active_page='profile')
 
 
-@profile_bp.route('/<username>/edit')
+@profile_bp.route('/<username>/edit', methods=['GET', 'POST'])
+@login_required
 def edit(username):
-    return render_template('profile/edit.html', user=CURRENT_USER, active_page='profile')
+    if username != current_user.username:
+        abort(403)
+
+    if request.method == 'POST':
+        current_user.name  = request.form.get('name', current_user.name).strip()
+        current_user.bio   = request.form.get('bio', '').strip()
+        current_user.major = request.form.get('major', '').strip()
+        current_user.year  = request.form.get('year', '').strip()
+        db.session.commit()
+        return redirect(url_for('profile.view', username=current_user.username))
+
+    return render_template('profile/edit.html', user=current_user, active_page='profile')
 
 
 @profile_bp.route('/<username>/followers')
+@login_required
 def followers(username):
-    user = next((u for u in USERS if u['username'] == username), CURRENT_USER)
-    return render_template('profile/followers.html', user=user, users=USERS, active_page='profile')
+    user = User.query.filter_by(username=username).first_or_404()
+    follower_users = [f.follower for f in user.followers.all()]
+    return render_template('profile/followers.html', user=user,
+                           users=follower_users, active_page='profile')
 
 
 @profile_bp.route('/<username>/following')
+@login_required
 def following(username):
-    user = next((u for u in USERS if u['username'] == username), CURRENT_USER)
-    following_users = [u for u in USERS if u.get('is_following')]
-    return render_template('profile/following.html', user=user, users=following_users, active_page='profile')
+    user = User.query.filter_by(username=username).first_or_404()
+    following_users = [f.followed for f in user.following.all()]
+    return render_template('profile/following.html', user=user,
+                           users=following_users, active_page='profile')

@@ -1,14 +1,12 @@
 from flask import Blueprint, render_template
+from flask_login import login_required
 
 groups_bp = Blueprint('groups', __name__, url_prefix='/groups')
 
-GROUPS = [
-    {'id': 1, 'name': 'CSCI 411 Study Group', 'members': 24, 'description': 'Database systems study group'},
-    {'id': 2, 'name': 'UW Hackathon Team', 'members': 8, 'description': 'Preparing for Hackathon 2026'},
-    {'id': 3, 'name': 'Math 221 Help Desk', 'members': 31, 'description': 'Linear algebra mutual aid'},
-]
-
 
 @groups_bp.route('/')
+@login_required
 def index():
-    return render_template('groups/index.html', groups=GROUPS, active_page=None)
+    # Groups feature coming soon - no hardcoded data
+    groups = []
+    return render_template('groups/index.html', groups=groups, active_page=None)

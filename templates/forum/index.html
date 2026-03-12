@@ -5,19 +5,24 @@
 
 <div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center justify-between">
     <h1 class="text-xl font-bold">Questions Forum</h1>
-    <a href="{{ url_for('forum.index') }}"
+    <a href="{{ url_for('forum.create') }}"
        class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded-full text-[14px] transition-colors">
         Ask Question
     </a>
 </div>
 
 <!-- Filter tabs -->
-<div class="flex border-b border-zinc-800 px-4 gap-2 py-2">
-    {% for f in ['All Courses', 'CSCI 411', 'CSCI 351', 'MATH 221'] %}
-    <a href="#"
-       class="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors
-              {{ 'bg-red-600 text-white' if loop.first else 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white' }}">
-        {{ f }}
+<div class="flex border-b border-zinc-800 px-4 gap-2 py-2 overflow-x-auto">
+    <a href="{{ url_for('forum.index') }}"
+       class="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors whitespace-nowrap
+              {{ 'bg-red-600 text-white' if not request.args.get('course_id') else 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white' }}">
+        All Courses
+    </a>
+    {% for course in courses %}
+    <a href="{{ url_for('forum.index', course_id=course.id) }}"
+       class="px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors whitespace-nowrap
+              {{ 'bg-red-600 text-white' if request.args.get('course_id')|int == course.id else 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white' }}">
+        {{ course.code }}
     </a>
     {% endfor %}
 </div>

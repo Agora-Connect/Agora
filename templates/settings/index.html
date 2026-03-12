@@ -36,11 +36,13 @@
 
 <!-- Logout -->
 <div class="px-4 py-4 border-t border-zinc-800">
-    <a href="{{ url_for('auth.landing') }}"
-       class="block w-full text-center border border-zinc-700 hover:border-zinc-500 text-white
-              font-semibold py-3 rounded-full transition-colors text-[15px]">
-        Log out @{{ current_user.username }}
-    </a>
+    <form action="{{ url_for('auth.logout') }}" method="POST">
+        <button type="submit"
+                class="w-full text-center border border-zinc-700 hover:border-zinc-500 text-white
+                       font-semibold py-3 rounded-full transition-colors text-[15px]">
+            Log out @{{ current_user.username }}
+        </button>
+    </form>
 </div>
 
 {% endblock %}

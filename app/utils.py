@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from app.mock_data import CURRENT_USER
+from flask_login import current_user
 
 
 def timeago(dt):
@@ -26,8 +26,49 @@ def timeago(dt):
 
 def inject_globals():
     """Inject variables available in every template."""
+    notification_count = 0
+    has_unread_messages = False
+
+    if current_user.is_authenticated:
+        from app.models import Notification, Message
+        notification_count = Notification.query.filter_by(
+            recipient_id=current_user.id, is_read=False
+        ).count()
+        has_unread_messages = Message.query.filter_by(
+            recipient_id=current_user.id, is_read=False
+        ).count() > 0
+
     return {
-        'current_user': CURRENT_USER,
-        'notification_count': 4,
-        'has_unread_messages': True,
+        'notification_count': notification_count,
+        'has_unread_messages': has_unread_messages,
     }
+
+
+def enrich_posts(posts, user_id):
+    """Attach per-user boolean flags to a list of Post objects."""
+    from app.models import UpvoteOnPost, Repost, Bookmark
+
+    if not user_id or not posts:
+        for p in posts:
+            p.is_liked_by_me = False
+            p.is_reposted_by_me = False
+            p.is_bookmarked_by_me = False
+        return posts
+
+    post_ids = [p.id for p in posts]
+    liked     = {r.post_id for r in UpvoteOnPost.query.filter(
+                    UpvoteOnPost.user_id == user_id,
+                    UpvoteOnPost.post_id.in_(post_ids)).all()}
+    reposted  = {r.post_id for r in Repost.query.filter(
+                    Repost.user_id == user_id,
+                    Repost.post_id.in_(post_ids)).all()}
+    bookmarked = {r.post_id for r in Bookmark.query.filter(
+                    Bookmark.user_id == user_id,
+                    Bookmark.post_id.in_(post_ids)).all()}
+
+    for p in posts:
+        p.is_liked_by_me      = p.id in liked
+        p.is_reposted_by_me   = p.id in reposted
+        p.is_bookmarked_by_me = p.id in bookmarked
+
+    return posts

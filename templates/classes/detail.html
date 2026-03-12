@@ -10,10 +10,27 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
     </a>
-    <div>
+    <div class="flex-1">
         <h1 class="text-xl font-bold">{{ course.code }}</h1>
         <p class="text-zinc-500 text-[13px]">{{ course.name }}</p>
     </div>
+    {% if is_enrolled %}
+    <form action="{{ url_for('classes.unenroll', course_id=course.id) }}" method="POST">
+        <button type="submit"
+                class="border border-zinc-600 hover:border-zinc-400 text-white font-semibold px-4 py-1.5
+                       rounded-full text-[14px] transition-colors">
+            Enrolled
+        </button>
+    </form>
+    {% else %}
+    <form action="{{ url_for('classes.enroll', course_id=course.id) }}" method="POST">
+        <button type="submit"
+                class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5
+                       rounded-full text-[14px] transition-colors">
+            Enroll
+        </button>
+    </form>
+    {% endif %}
 </div>
 
 <!-- Composer -->

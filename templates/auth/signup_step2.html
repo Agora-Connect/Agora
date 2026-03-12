@@ -19,10 +19,15 @@
         <div class="h-1 flex-1 bg-zinc-800 rounded-full"></div>
     </div>
 
+    {% if error %}
+    <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-4 text-sm">
+        {{ error }}
+    </div>
+    {% endif %}
     <p class="text-sm text-zinc-500 mb-1">Step 2 of 5</p>
     <h1 class="text-2xl font-bold mb-6">University details</h1>
 
-    <form action="{{ url_for('auth.signup_step3') }}" method="GET" class="space-y-4">
+    <form action="{{ url_for('auth.signup_step2') }}" method="POST" class="space-y-4">
 
         <div>
             <label class="block text-sm font-medium text-zinc-400 mb-1.5">University</label>

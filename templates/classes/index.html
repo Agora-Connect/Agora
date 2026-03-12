@@ -46,8 +46,7 @@
         <p class="font-bold text-[15px]">{{ course.code }}</p>
         <p class="text-zinc-500 text-[14px]">{{ course.name }}</p>
     </div>
-    <form action="{{ url_for('classes.index') }}" method="POST">
-        <input type="hidden" name="course_id" value="{{ course.id }}">
+    <form action="{{ url_for('classes.enroll', course_id=course.id) }}" method="POST">
         <button type="submit"
                 class="border border-zinc-600 hover:border-zinc-400 text-white font-semibold
                        px-3 py-1.5 rounded-full text-[13px] transition-colors">

@@ -18,7 +18,7 @@
 </div>
 
 <!-- Banner -->
-<div class="h-36 bg-gradient-to-br from-red-900/40 to-zinc-900 relative">
+<div class="h-36 bg-zinc-900 relative">
     {% if user.banner_url %}
     <img src="{{ user.banner_url }}" class="w-full h-full object-cover">
     {% endif %}
@@ -27,7 +27,7 @@
 <!-- Avatar & Actions -->
 <div class="px-4 pb-4">
     <div class="flex items-end justify-between mb-3 -mt-10">
-        <div class="w-20 h-20 rounded-full bg-red-600 border-4 border-black flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+        <div class="w-20 h-20 rounded-full bg-red-600 border-4 border-black flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 relative z-10">
             {{ user.display_name[:2]|upper }}
         </div>
         {% if is_own %}
@@ -47,9 +47,9 @@
             </a>
             <form action="{{ url_for('follow.follow_user', user_id=user.id) }}" method="POST">
                 <button type="submit"
-                        class="{{ 'bg-white text-black hover:bg-zinc-200' if user.is_following else 'bg-red-600 hover:bg-red-700 text-white' }}
+                        class="{{ 'bg-white text-black hover:bg-zinc-200' if is_following else 'bg-red-600 hover:bg-red-700 text-white' }}
                                font-bold px-4 py-1.5 rounded-full text-[14px] transition-colors">
-                    {{ 'Following' if user.is_following else 'Follow' }}
+                    {{ 'Following' if is_following else 'Follow' }}
                 </button>
             </form>
         </div>
@@ -96,7 +96,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
-            Joined {{ user.joined_at.strftime('%B %Y') if user.joined_at else 'March 2024' }}
+            Joined {{ user.created_at.strftime('%B %Y') if user.created_at else '2024' }}
         </span>
     </div>
 
@@ -136,18 +136,52 @@
     {% endfor %}
 </div>
 
-<!-- Posts -->
-{% if posts %}
-    {% for post in posts %}
-        {% include 'components/post_card.html' %}
-    {% endfor %}
+<!-- Tab Content -->
+{% if tab == 'replies' %}
+    {% if comments %}
+        {% for comment in comments %}
+        <div class="px-4 py-4 border-b border-zinc-800">
+            <p class="text-zinc-500 text-[13px] mb-1">Replied to a post</p>
+            <p class="text-[15px] leading-relaxed">{{ comment.content }}</p>
+            <p class="text-zinc-600 text-[13px] mt-1">{{ comment.created_at|timeago }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+        <h3 class="font-bold text-lg mb-1">No replies yet</h3>
+        <p class="text-zinc-500 text-[15px]">
+            {% if is_own %}Reply to a post to get started.{% else %}This user hasn't replied yet.{% endif %}
+        </p>
+    </div>
+    {% endif %}
+{% elif tab == 'media' %}
+    {% if posts %}
+        {% for post in posts %}{% include 'components/post_card.html' %}{% endfor %}
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+        <h3 class="font-bold text-lg mb-1">No media yet</h3>
+        <p class="text-zinc-500 text-[15px]">
+            {% if is_own %}Share a photo in a post.{% else %}No media posts yet.{% endif %}
+        </p>
+    </div>
+    {% endif %}
 {% else %}
-<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
-    <h3 class="font-bold text-lg mb-1">No posts yet</h3>
-    <p class="text-zinc-500 text-[15px]">
-        {% if is_own %}Share something with your campus!{% else %}This user hasn't posted yet.{% endif %}
-    </p>
-</div>
+    {% if posts %}
+        {% for post in posts %}{% include 'components/post_card.html' %}{% endfor %}
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+        <h3 class="font-bold text-lg mb-1">
+            {% if tab == 'likes' %}No liked posts{% else %}No posts yet{% endif %}
+        </h3>
+        <p class="text-zinc-500 text-[15px]">
+            {% if tab == 'likes' %}
+                {% if is_own %}Like some posts to see them here.{% else %}This user hasn't liked anything yet.{% endif %}
+            {% else %}
+                {% if is_own %}Share something with your campus!{% else %}This user hasn't posted yet.{% endif %}
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
 {% endif %}
 
 {% endblock %}

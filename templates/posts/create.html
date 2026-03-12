@@ -28,9 +28,9 @@
                         class="mt-3 bg-zinc-900 text-red-400 text-sm font-medium px-3 py-2 rounded-full
                                border border-zinc-800 outline-none">
                     <option value="">Select course (optional)...</option>
-                    <option value="1">CSCI 411 - Database Systems</option>
-                    <option value="2">CSCI 351 - Data Structures & Algorithms</option>
-                    <option value="3">MATH 221 - Linear Algebra</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.code }}</option>
+                    {% endfor %}
                 </select>
 
                 <!-- Anonymous toggle -->

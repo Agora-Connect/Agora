@@ -1,19 +1,55 @@
-from flask import Blueprint, render_template
-from app.mock_data import COURSES, POSTS
+from flask import Blueprint, render_template, redirect, url_for, request
+from flask_login import login_required, current_user
+from app.models import db, Course, Enrollment, Post
+from app.utils import enrich_posts
 
 classes_bp = Blueprint('classes', __name__, url_prefix='/classes')
 
 
 @classes_bp.route('/')
+@login_required
 def index():
-    enrolled = [c for c in COURSES if c['enrolled']]
-    return render_template('classes/index.html', courses=COURSES,
+    all_courses = Course.query.order_by(Course.code).all()
+    enrolled_ids = {e.course_id for e in
+                    Enrollment.query.filter_by(user_id=current_user.id).all()}
+    for c in all_courses:
+        c.enrolled = c.id in enrolled_ids
+    enrolled = [c for c in all_courses if c.enrolled]
+    return render_template('classes/index.html', courses=all_courses,
                            enrolled=enrolled, active_page=None)
 
 
 @classes_bp.route('/<int:course_id>')
+@login_required
 def detail(course_id):
-    course = next((c for c in COURSES if c['id'] == course_id), COURSES[0])
-    course_posts = [p for p in POSTS if p['course']['id'] == course_id]
-    return render_template('classes/detail.html', course=course,
-                           posts=course_posts, active_page=None)
+    course = Course.query.get_or_404(course_id)
+    posts = (Post.query.filter_by(course_id=course_id)
+             .order_by(Post.created_at.desc()).limit(30).all())
+    posts = enrich_posts(posts, current_user.id)
+    is_enrolled = Enrollment.query.filter_by(
+        user_id=current_user.id, course_id=course_id).first() is not None
+    return render_template('classes/detail.html', course=course, posts=posts,
+                           is_enrolled=is_enrolled, active_page=None)
+
+
+@classes_bp.route('/<int:course_id>/enroll', methods=['POST'])
+@login_required
+def enroll(course_id):
+    Course.query.get_or_404(course_id)
+    existing = Enrollment.query.filter_by(
+        user_id=current_user.id, course_id=course_id).first()
+    if not existing:
+        db.session.add(Enrollment(user_id=current_user.id, course_id=course_id))
+        db.session.commit()
+    return redirect(url_for('classes.detail', course_id=course_id))
+
+
+@classes_bp.route('/<int:course_id>/unenroll', methods=['POST'])
+@login_required
+def unenroll(course_id):
+    existing = Enrollment.query.filter_by(
+        user_id=current_user.id, course_id=course_id).first()
+    if existing:
+        db.session.delete(existing)
+        db.session.commit()
+    return redirect(url_for('classes.detail', course_id=course_id))

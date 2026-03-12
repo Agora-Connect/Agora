@@ -5,10 +5,9 @@
 
 <div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center justify-between">
     <h1 class="text-xl font-bold">Groups</h1>
-    <a href="#"
-       class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded-full text-[14px] transition-colors">
-        Create Group
-    </a>
+    <span class="bg-zinc-800 text-zinc-500 font-bold px-4 py-1.5 rounded-full text-[14px]">
+        Coming Soon
+    </span>
 </div>
 
 {% for group in groups %}
@@ -34,6 +33,17 @@
             </div>
         </div>
     </div>
+</div>
+{% else %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+    </div>
+    <h3 class="font-bold text-lg mb-1">Groups coming soon</h3>
+    <p class="text-zinc-500 text-[15px]">Study groups for your courses will be available here.</p>
 </div>
 {% endfor %}
 

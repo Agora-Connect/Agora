@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<!-- Header with Search -->
+<!-- Search Bar -->
 <div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3">
     <form action="{{ url_for('main.search') }}" method="GET">
         <div class="relative">
@@ -19,38 +19,60 @@
     </form>
 </div>
 
-<!-- Trending Topics -->
+<!-- Trending Tags -->
+{% if trending_tags %}
 <div class="px-4 py-4">
-    <h2 class="text-xl font-bold mb-4">What's happening on campus</h2>
-
+    <h2 class="text-xl font-bold mb-4">Trending on campus</h2>
     <div class="space-y-0 rounded-2xl overflow-hidden bg-zinc-900">
-        {% set trending = [
-            ('CSCI 411', 'databases', '1.2K posts', 'Course'),
-            ('Hackathon 2026', 'hackathon2026', '8.7K posts', 'Tech Event'),
-            ('Finals Week', 'finalsweek', '4.5K posts', 'Trending'),
-            ('Huskies', 'huskies', '3.1K posts', 'Sports'),
-            ('Study Rooms', 'studyrooms', '892 posts', 'Campus'),
-        ] %}
-        {% for name, tag, count, category in trending %}
+        {% for tag, count in trending_tags %}
         <a href="{{ url_for('main.search', q='#' + tag) }}"
            class="block p-4 hover:bg-zinc-800 transition-colors
-                  {{ '' if loop.last else 'border-b border-zinc-800' }}">
-            <p class="text-xs text-zinc-500">{{ category }}</p>
-            <p class="font-bold text-[15px] mt-0.5">{{ name }}</p>
-            <p class="text-xs text-zinc-500 mt-0.5">#{{ tag }} · {{ count }}</p>
+                  {{ '' if not loop.last else '' }} border-b border-zinc-800 last:border-0">
+            <p class="text-xs text-zinc-500">Trending</p>
+            <p class="font-bold text-[15px] mt-0.5">#{{ tag }}</p>
+            <p class="text-xs text-zinc-500 mt-0.5">{{ count }} post{{ 's' if count != 1 else '' }}</p>
         </a>
         {% endfor %}
     </div>
 </div>
+{% endif %}
 
-<!-- Suggested People -->
+<!-- Who to follow -->
+{% if suggestions %}
 <div class="px-4 py-4 border-t border-zinc-800">
     <h2 class="text-xl font-bold mb-4">Who to follow</h2>
     <div class="space-y-0 rounded-2xl overflow-hidden bg-zinc-900">
-        {% from 'components/user_card.html' import user_card_inline %}
-        {% set users = [] %}
-        {{ '' }}
+        {% for user in suggestions %}
+        <div class="flex items-center gap-3 p-4 border-b border-zinc-800 last:border-0">
+            <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center
+                        text-white font-bold flex-shrink-0">
+                {{ user.display_name[:2]|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <a href="{{ url_for('profile.view', username=user.username) }}"
+                   class="font-bold text-[15px] hover:underline truncate block">
+                    {{ user.display_name }}
+                </a>
+                <p class="text-zinc-500 text-[13px] truncate">@{{ user.username }}</p>
+            </div>
+            <form action="{{ url_for('follow.follow_user', user_id=user.id) }}" method="POST">
+                <button type="submit"
+                        class="bg-white text-black hover:bg-zinc-200 font-bold px-4 py-1.5
+                               rounded-full text-[13px] transition-colors whitespace-nowrap">
+                    Follow
+                </button>
+            </form>
+        </div>
+        {% endfor %}
     </div>
 </div>
+{% endif %}
+
+{% if not trending_tags and not suggestions %}
+<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <h3 class="font-bold text-lg mb-1">Nothing to explore yet</h3>
+    <p class="text-zinc-500 text-[15px]">Be the first to post and start the conversation.</p>
+</div>
+{% endif %}
 
 {% endblock %}
