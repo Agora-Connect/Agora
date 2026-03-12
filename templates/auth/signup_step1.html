@@ -1,0 +1,85 @@
+{% extends 'base_auth.html' %}
+{% block title %}Create your account - Agora{% endblock %}
+
+{% block content %}
+<div>
+    <a href="{{ url_for('auth.landing') }}"
+       class="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm mb-6 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back
+    </a>
+
+    <!-- Progress -->
+    <div class="flex gap-1.5 mb-6">
+        <div class="h-1 flex-1 bg-red-600 rounded-full"></div>
+        <div class="h-1 flex-1 bg-zinc-800 rounded-full"></div>
+        <div class="h-1 flex-1 bg-zinc-800 rounded-full"></div>
+        <div class="h-1 flex-1 bg-zinc-800 rounded-full"></div>
+        <div class="h-1 flex-1 bg-zinc-800 rounded-full"></div>
+    </div>
+
+    <p class="text-sm text-zinc-500 mb-1">Step 1 of 5</p>
+    <h1 class="text-2xl font-bold mb-6">Basic information</h1>
+
+    <form action="{{ url_for('auth.signup_step2') }}" method="GET" class="space-y-4">
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Full Name</label>
+            <input type="text" name="name" placeholder="Your full name"
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]"
+                   required>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Email Address</label>
+            <input type="email" name="email" placeholder="you@university.edu"
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]"
+                   required>
+            <p class="text-xs text-zinc-600 mt-1.5">University email recommended (.edu)</p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Date of Birth</label>
+            <div class="grid grid-cols-3 gap-2">
+                <select name="month" class="bg-zinc-900 border border-zinc-700 focus:border-red-600
+                                            rounded-xl px-3 py-3 text-white outline-none transition-colors text-[15px]">
+                    <option value="">Month</option>
+                    {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                    <option>{{ m }}</option>
+                    {% endfor %}
+                </select>
+                <select name="day" class="bg-zinc-900 border border-zinc-700 focus:border-red-600
+                                          rounded-xl px-3 py-3 text-white outline-none transition-colors text-[15px]">
+                    <option value="">Day</option>
+                    {% for d in range(1, 32) %}
+                    <option>{{ d }}</option>
+                    {% endfor %}
+                </select>
+                <select name="year" class="bg-zinc-900 border border-zinc-700 focus:border-red-600
+                                           rounded-xl px-3 py-3 text-white outline-none transition-colors text-[15px]">
+                    <option value="">Year</option>
+                    {% for y in range(2008, 1989, -1) %}
+                    <option>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-full
+                       transition-colors text-[16px] mt-2">
+            Next
+        </button>
+
+    </form>
+
+    <p class="text-center text-zinc-500 text-sm mt-6">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}" class="text-red-500 hover:text-red-400 font-medium">Sign in</a>
+    </p>
+</div>
+{% endblock %}

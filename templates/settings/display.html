@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Display - Settings{% endblock %}
+
+{% block content %}
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('settings.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-xl font-bold">Display</h1>
+</div>
+
+<div class="px-4 py-4 space-y-6">
+    <div>
+        <p class="font-semibold text-[16px] mb-3">Accent Color</p>
+        <div class="flex gap-3">
+            {% for color in ['bg-red-600', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'] %}
+            <label class="cursor-pointer">
+                <input type="radio" name="color" class="hidden">
+                <div class="w-8 h-8 rounded-full {{ color }} ring-2 ring-offset-2 ring-offset-black
+                            {{ 'ring-white' if loop.first else 'ring-transparent hover:ring-zinc-500' }} transition-all">
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <p class="font-semibold text-[16px] mb-3">Font Size</p>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-zinc-500">Aa</span>
+            <input type="range" min="1" max="5" value="3"
+                   class="flex-1 accent-red-600">
+            <span class="text-lg text-zinc-500">Aa</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

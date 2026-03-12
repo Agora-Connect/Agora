@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Account - Settings{% endblock %}
+
+{% block content %}
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('settings.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-xl font-bold">Your Account</h1>
+</div>
+
+<div class="divide-y divide-zinc-800">
+    {% for label, value in [('Username', '@' + current_user.username), ('Email', current_user.email), ('University', current_user.university), ('Major', current_user.major)] %}
+    <div class="px-4 py-4 hover:bg-zinc-950 transition-colors cursor-pointer">
+        <p class="text-zinc-500 text-[13px]">{{ label }}</p>
+        <p class="text-[15px] mt-0.5">{{ value }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
