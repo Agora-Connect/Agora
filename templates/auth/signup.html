@@ -1,0 +1,72 @@
+{% extends 'base_auth.html' %}
+{% block title %}Create Account - Agora{% endblock %}
+
+{% block content %}
+<div>
+    <a href="{{ url_for('auth.landing') }}"
+       class="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm mb-6 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back
+    </a>
+
+    <h1 class="text-3xl font-bold mb-2">Create your account</h1>
+    <p class="text-zinc-500 text-sm mb-8">SCSU students only — use your @stcloudstate.edu email</p>
+
+    {% if error %}
+    <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form action="{{ url_for('auth.signup') }}" method="POST" class="space-y-4">
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Full Name</label>
+            <input type="text" name="name" placeholder="Your name" required
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600
+                          outline-none transition-colors text-[15px]">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">SCSU Email</label>
+            <input type="email" name="email" placeholder="you@stcloudstate.edu" required
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600
+                          outline-none transition-colors text-[15px]">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Username</label>
+            <input type="text" name="username" placeholder="username" required
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600
+                          outline-none transition-colors text-[15px]">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Password</label>
+            <input type="password" name="password" placeholder="Min. 8 characters" required
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600
+                          outline-none transition-colors text-[15px]">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-full
+                       transition-colors text-[16px] mt-2">
+            Create Account
+        </button>
+
+    </form>
+
+    <p class="text-center text-zinc-500 text-sm mt-6">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}" class="text-red-500 hover:text-red-400 font-medium">
+            Sign in
+        </a>
+    </p>
+</div>
+{% endblock %}
