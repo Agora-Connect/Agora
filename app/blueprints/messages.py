@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
-from app.models import db, Message, User
+from app.models import db, Message, User, Notification
 
 messages_bp = Blueprint('messages', __name__, url_prefix='/messages')
 
@@ -73,6 +73,19 @@ def conversation(partner_id):
                 recipient_id=partner_id,
                 content=content,
             ))
+            # Notify recipient only if they haven't been notified recently
+            recent = Notification.query.filter_by(
+                recipient_id=partner_id,
+                actor_id=current_user.id,
+                type='message',
+                is_read=False,
+            ).first()
+            if not recent:
+                db.session.add(Notification(
+                    recipient_id=partner_id,
+                    actor_id=current_user.id,
+                    type='message',
+                ))
             db.session.commit()
         return redirect(url_for('messages.conversation', partner_id=partner_id))
 

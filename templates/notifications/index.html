@@ -41,6 +41,20 @@
                           d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
             </div>
+            {% elif n.type == 'answer' %}
+            <div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            {% elif n.type == 'message' %}
+            <div class="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+            </div>
             {% else %}
             <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
                 <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,25 +66,53 @@
 
         <!-- Content -->
         <div class="flex-1 min-w-0">
-            <!-- Actors -->
-            <div class="flex items-center gap-1 flex-wrap mb-1">
-                {% for actor in n.actors[:3] %}
-                <a href="{{ url_for('profile.view', username=actor.username) }}">
+            <div class="flex items-center gap-2 mb-1">
+                <a href="{{ url_for('profile.view', username=n.actor.username) }}">
                     <div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold">
-                        {{ actor.display_name[:2]|upper }}
+                        {{ n.actor.display_name[:2]|upper }}
                     </div>
                 </a>
-                {% endfor %}
             </div>
 
             <p class="text-[15px]">
-                <a href="{{ url_for('profile.view', username=n.actors[0].username) }}"
-                   class="font-bold hover:underline">{{ n.actors[0].display_name }}</a>
-                {{ n.message }}
+                <a href="{{ url_for('profile.view', username=n.actor.username) }}"
+                   class="font-bold hover:underline">{{ n.actor.display_name }}</a>
+                {% if n.type == 'like' %}
+                    liked your post
+                {% elif n.type == 'follow' %}
+                    followed you
+                {% elif n.type == 'reply' %}
+                    replied to your post
+                {% elif n.type == 'repost' %}
+                    reposted your post
+                {% elif n.type == 'answer' %}
+                    answered your question
+                {% elif n.type == 'message' %}
+                    sent you a message
+                {% else %}
+                    interacted with you
+                {% endif %}
             </p>
-            {% if n.post_preview %}
-            <p class="text-zinc-500 text-[14px] mt-0.5 truncate">{{ n.post_preview }}</p>
+
+            {% if n.post %}
+            <a href="{{ url_for('posts.detail', post_id=n.post.id) }}"
+               class="text-zinc-500 text-[14px] mt-0.5 truncate block hover:text-zinc-300 transition-colors">
+                {{ n.post.content[:80] }}{% if n.post.content|length > 80 %}...{% endif %}
+            </a>
             {% endif %}
+
+            {% if n.type == 'message' %}
+            <a href="{{ url_for('messages.conversation', partner_id=n.actor.id) }}"
+               class="text-blue-400 text-[14px] mt-1 block hover:underline">
+                View message →
+            </a>
+            {% elif n.type == 'follow' %}
+            <a href="{{ url_for('profile.view', username=n.actor.username) }}"
+               class="text-zinc-500 text-[14px] mt-1 block hover:text-zinc-300">
+                View profile →
+            </a>
+            {% endif %}
+
             <p class="text-zinc-600 text-[13px] mt-1">{{ n.created_at|timeago }}</p>
         </div>
 
@@ -82,7 +124,7 @@
 {% else %}
 <div class="flex flex-col items-center justify-center py-20 px-8 text-center">
     <h3 class="font-bold text-lg mb-1">Nothing to see here — yet</h3>
-    <p class="text-zinc-500 text-[15px]">When someone interacts with you, it will show up here.</p>
+    <p class="text-zinc-500 text-[15px]">When someone likes, replies, follows, or messages you, it'll show up here.</p>
 </div>
 {% endif %}
 
