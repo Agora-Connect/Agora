@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Agora{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -32,7 +33,7 @@
         ::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 2px; }
     </style>
 </head>
-<body class="bg-black text-white font-sans min-h-screen">
+<body class="bg-black text-white font-sans min-h-screen" hx-boost="true">
 
     <div class="flex justify-center min-h-screen max-w-7xl mx-auto">
 
