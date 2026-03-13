@@ -324,6 +324,59 @@ class Resource(db.Model):
                                        cascade='all, delete-orphan')
 
 
+# ── Group ─────────────────────────────────────────────────────────────────────
+
+class Group(db.Model):
+    __tablename__ = 'study_group'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    course_id   = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=True)
+    creator_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_private  = db.Column(db.Boolean, default=False)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+
+    creator     = db.relationship('User', foreign_keys=[creator_id])
+    course      = db.relationship('Course')
+    memberships = db.relationship('GroupMembership', backref='group', lazy='dynamic',
+                                  cascade='all, delete-orphan')
+    posts       = db.relationship('GroupPost', backref='group', lazy='dynamic',
+                                  cascade='all, delete-orphan')
+
+    @property
+    def member_count(self):
+        return self.memberships.count()
+
+
+# ── GroupMembership ───────────────────────────────────────────────────────────
+
+class GroupMembership(db.Model):
+    __tablename__ = 'group_membership'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    group_id  = db.Column(db.Integer, db.ForeignKey('study_group.id'), nullable=False)
+    user_id   = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    role      = db.Column(db.String(20), default='member')  # admin / member
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User')
+
+
+# ── GroupPost ─────────────────────────────────────────────────────────────────
+
+class GroupPost(db.Model):
+    __tablename__ = 'group_post'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    group_id   = db.Column(db.Integer, db.ForeignKey('study_group.id'), nullable=False)
+    user_id    = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content    = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    author = db.relationship('User')
+
+
 # ── BorrowRequest ─────────────────────────────────────────────────────────────
 
 class BorrowRequest(db.Model):

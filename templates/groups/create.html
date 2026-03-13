@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Create Group - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('groups.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-xl font-bold">Create Group</h1>
+</div>
+
+<form action="{{ url_for('groups.create') }}" method="POST" class="px-4 py-5 space-y-4 max-w-lg">
+
+    {% if error %}
+    <div class="bg-red-900/30 border border-red-800 text-red-300 rounded-xl px-4 py-3 text-[14px]">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Group Name <span class="text-red-500">*</span></label>
+        <input type="text" name="name" placeholder="e.g. CSCI 411 Study Crew" required
+               class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                      rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Description</label>
+        <textarea name="description" rows="3" placeholder="What's this group about?"
+                  class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                         rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none
+                         transition-colors resize-none text-[15px]"></textarea>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Related Course (optional)</label>
+        <select name="course_id"
+                class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                       rounded-xl px-4 py-3 text-white outline-none transition-colors text-[15px]">
+            <option value="">No specific course</option>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.code }} – {{ course.name }}</option>
+            {% endfor %}
+        </select>
+        {% if not courses %}
+        <p class="text-zinc-600 text-[12px] mt-1">Enroll in a course first to link it here.</p>
+        {% endif %}
+    </div>
+
+    <div class="flex items-center gap-3">
+        <input type="checkbox" name="is_private" id="is_private"
+               class="w-4 h-4 rounded border-zinc-600 bg-zinc-900 text-red-600 cursor-pointer">
+        <label for="is_private" class="text-[15px] text-zinc-300 cursor-pointer">
+            Private group <span class="text-zinc-600 text-[13px]">— only members can view posts</span>
+        </label>
+    </div>
+
+    <button type="submit"
+            class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-full
+                   transition-colors text-[15px] w-full">
+        Create Group
+    </button>
+
+</form>
+
+{% endblock %}

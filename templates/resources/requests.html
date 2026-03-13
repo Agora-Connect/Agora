@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Resource Requests - Agora{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-4">
+    <a href="{{ url_for('resources.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-xl font-bold">Resource Requests</h1>
+</div>
+
+<!-- Incoming requests you need to action -->
+<div class="px-4 pt-4 pb-2">
+    <p class="text-zinc-500 text-[13px] font-medium uppercase tracking-wide">Incoming Requests</p>
+</div>
+
+{% set ns = namespace(has_pending=false) %}
+{% for req in incoming %}{% if req.status == 'pending' %}{% set ns.has_pending = true %}
+<div class="px-4 py-4 border-b border-zinc-800">
+    <div class="flex items-start gap-3 justify-between">
+        <div class="flex-1 min-w-0">
+            <p class="font-bold text-[15px]">{{ req.resource.title }}</p>
+            <p class="text-zinc-500 text-[13px] mt-0.5">
+                Requested by
+                <a href="{{ url_for('profile.view', username=req.requester.username) }}"
+                   class="text-zinc-300 hover:underline font-medium">{{ req.requester.display_name }}</a>
+                · {{ req.requested_at|timeago }}
+            </p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <form action="{{ url_for('resources.approve_request', request_id=req.id) }}" method="POST">
+                <button type="submit"
+                        class="bg-green-700 hover:bg-green-600 text-white font-semibold px-3 py-1.5 rounded-full text-[13px] transition-colors">
+                    Approve
+                </button>
+            </form>
+            <form action="{{ url_for('resources.decline_request', request_id=req.id) }}" method="POST">
+                <button type="submit"
+                        class="border border-zinc-600 hover:border-zinc-400 text-zinc-400 font-semibold px-3 py-1.5 rounded-full text-[13px] transition-colors">
+                    Decline
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}{% endfor %}
+{% if not ns.has_pending %}
+<div class="px-4 py-6 text-center text-zinc-600 text-[14px]">No pending incoming requests.</div>
+{% endif %}
+
+<!-- Past incoming -->
+{% set ns2 = namespace(has_past=false) %}
+{% for req in incoming %}{% if req.status != 'pending' %}{% set ns2.has_past = true %}{% endif %}{% endfor %}
+{% if ns2.has_past %}
+<div class="px-4 pt-5 pb-2 border-t border-zinc-800">
+    <p class="text-zinc-500 text-[13px] font-medium uppercase tracking-wide">Past Incoming</p>
+</div>
+{% for req in incoming %}
+{% if req.status != 'pending' %}
+<div class="px-4 py-3 border-b border-zinc-800 flex items-center justify-between gap-3">
+    <div>
+        <p class="text-[15px] font-medium">{{ req.resource.title }}</p>
+        <p class="text-zinc-500 text-[13px]">{{ req.requester.display_name }} · {{ req.requested_at|timeago }}</p>
+    </div>
+    <span class="text-[12px] px-2 py-1 rounded-full font-medium flex-shrink-0
+                 {{ 'bg-green-900/30 text-green-400' if req.status == 'approved' else 'bg-zinc-900 text-zinc-500' }}">
+        {{ req.status|capitalize }}
+    </span>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<!-- My outgoing requests -->
+<div class="px-4 pt-6 pb-2 border-t border-zinc-800 mt-2">
+    <p class="text-zinc-500 text-[13px] font-medium uppercase tracking-wide">My Requests</p>
+</div>
+{% if my_requests %}
+{% for req in my_requests %}
+<div class="px-4 py-3 border-b border-zinc-800 flex items-center justify-between gap-3">
+    <div>
+        <p class="text-[15px] font-medium">{{ req.resource.title }}</p>
+        <p class="text-zinc-500 text-[13px]">{{ req.resource.course.code }} · owned by
+            <a href="{{ url_for('profile.view', username=req.owner.username) }}"
+               class="hover:underline">{{ req.owner.display_name }}</a>
+        </p>
+        <p class="text-zinc-600 text-[12px]">{{ req.requested_at|timeago }}</p>
+    </div>
+    <span class="text-[12px] px-2 py-1 rounded-full font-medium flex-shrink-0
+                 {{ 'bg-yellow-900/30 text-yellow-400' if req.status == 'pending'
+                    else 'bg-green-900/30 text-green-400' if req.status == 'approved'
+                    else 'bg-zinc-900 text-zinc-500' }}">
+        {{ req.status|capitalize }}
+    </span>
+</div>
+{% endfor %}
+{% else %}
+<div class="px-4 py-6 text-center text-zinc-600 text-[14px]">You haven't requested any resources yet.</div>
+{% endif %}
+
+{% endblock %}

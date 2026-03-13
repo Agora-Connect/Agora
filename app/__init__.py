@@ -36,6 +36,10 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    # Auto-create any missing tables (safe for new models on Railway)
+    with app.app_context():
+        db.create_all()
+
     # Template filters & globals
     app.jinja_env.filters['timeago'] = timeago
     app.context_processor(inject_globals)
