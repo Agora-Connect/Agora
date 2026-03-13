@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ conversation.participant.display_name }} - Messages{% endblock %}
+{% block title %}{{ partner.display_name }} - Messages{% endblock %}
 
 {% block content %}
 
@@ -10,21 +10,21 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
     </a>
-    <a href="{{ url_for('profile.view', username=conversation.participant.username) }}"
+    <a href="{{ url_for('profile.view', username=partner.username) }}"
        class="flex items-center gap-3 hover:opacity-80 transition-opacity">
         <div class="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-            {{ conversation.participant.display_name[:2]|upper }}
+            {{ partner.display_name[:2]|upper }}
         </div>
         <div>
-            <p class="font-bold text-[15px] leading-tight">{{ conversation.participant.display_name }}</p>
-            <p class="text-zinc-500 text-[13px]">@{{ conversation.participant.username }}</p>
+            <p class="font-bold text-[15px] leading-tight">{{ partner.display_name }}</p>
+            <p class="text-zinc-500 text-[13px]">@{{ partner.username }}</p>
         </div>
     </a>
 </div>
 
 <!-- Messages -->
 <div class="flex flex-col gap-2 px-4 py-4 min-h-[60vh]">
-    {% for msg in conversation.messages %}
+    {% for msg in messages %}
     <div class="flex {{ 'justify-end' if msg.sender_id == current_user.id else 'justify-start' }}">
         <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed
                     {{ 'bg-red-600 text-white rounded-br-sm' if msg.sender_id == current_user.id else 'bg-zinc-800 text-white rounded-bl-sm' }}">
@@ -32,13 +32,18 @@
         </div>
     </div>
     {% endfor %}
+    {% if not messages %}
+    <div class="flex items-center justify-center py-12 text-zinc-500 text-[15px]">
+        Start a conversation with {{ partner.display_name }}
+    </div>
+    {% endif %}
 </div>
 
 <!-- Composer -->
 <div class="sticky bottom-0 bg-black border-t border-zinc-800 px-4 py-3 md:bottom-0 bottom-14">
-    <form action="{{ url_for('messages.conversation', conversation_id=conversation.id) }}" method="POST">
+    <form action="{{ url_for('messages.conversation', partner_id=partner.id) }}" method="POST">
         <div class="flex items-center gap-2">
-            <input type="text" name="message" placeholder="Start a new message"
+            <input type="text" name="message" placeholder="Start a new message" autocomplete="off"
                    class="flex-1 bg-zinc-900 rounded-full px-4 py-2.5 text-white placeholder-zinc-500
                           outline-none focus:ring-1 focus:ring-red-600 text-[15px]">
             <button type="submit"

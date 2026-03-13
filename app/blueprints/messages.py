@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
-from app.models import Message, User
+from app.models import db, Message, User
 
 messages_bp = Blueprint('messages', __name__, url_prefix='/messages')
 
@@ -8,11 +8,9 @@ messages_bp = Blueprint('messages', __name__, url_prefix='/messages')
 @messages_bp.route('/')
 @login_required
 def inbox():
-    # Get distinct conversations for current user
     sent     = Message.query.filter_by(sender_id=current_user.id).all()
     received = Message.query.filter_by(recipient_id=current_user.id).all()
 
-    # Build conversation partners
     partner_ids = set()
     for m in sent:
         partner_ids.add(m.recipient_id)
@@ -39,36 +37,56 @@ def inbox():
             'unread': unread,
         })
 
-    conversations.sort(key=lambda c: c['last_message'].sent_at if c['last_message'] else 0,
-                       reverse=True)
+    conversations.sort(
+        key=lambda c: c['last_message'].sent_at if c['last_message'] else 0,
+        reverse=True)
     return render_template('messages/inbox.html',
                            conversations=conversations, active_page='messages')
 
 
-@messages_bp.route('/<int:partner_id>')
+@messages_bp.route('/search')
+@login_required
+def search():
+    q = request.args.get('q', '').strip()
+    users = []
+    if q:
+        users = (User.query
+                 .filter(User.id != current_user.id)
+                 .filter(
+                     (User.username.ilike(f'%{q}%')) |
+                     (User.name.ilike(f'%{q}%'))
+                 )
+                 .limit(10).all())
+    return render_template('messages/search.html', users=users, q=q, active_page='messages')
+
+
+@messages_bp.route('/<int:partner_id>', methods=['GET', 'POST'])
 @login_required
 def conversation(partner_id):
     partner = User.query.get_or_404(partner_id)
+
+    if request.method == 'POST':
+        content = request.form.get('message', '').strip()
+        if content:
+            db.session.add(Message(
+                sender_id=current_user.id,
+                recipient_id=partner_id,
+                content=content,
+            ))
+            db.session.commit()
+        return redirect(url_for('messages.conversation', partner_id=partner_id))
+
     messages = (Message.query
                 .filter(
                     ((Message.sender_id == current_user.id) & (Message.recipient_id == partner_id)) |
                     ((Message.sender_id == partner_id) & (Message.recipient_id == current_user.id))
                 )
                 .order_by(Message.sent_at.asc()).all())
-    # Mark received messages as read
+
     for m in messages:
         if m.recipient_id == current_user.id and not m.is_read:
             m.is_read = True
-    from app.models import db
     db.session.commit()
 
-    # Build conversations list for sidebar
     return render_template('messages/conversation.html',
-                           partner=partner, messages=messages,
-                           conversations=[], active_page='messages')
-
-
-@messages_bp.route('/new')
-@login_required
-def new():
-    return redirect(url_for('messages.inbox'))
+                           partner=partner, messages=messages, active_page='messages')

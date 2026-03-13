@@ -43,7 +43,7 @@
     </label>
 </div>
 
-<form id="edit-form" action="{{ url_for('profile.view', username=user.username) }}" method="GET" class="px-4 space-y-4 pb-8">
+<form id="edit-form" action="{{ url_for('profile.edit', username=user.username) }}" method="POST" class="px-4 space-y-4 pb-8">
 
     <div>
         <label class="block text-sm font-medium text-zinc-400 mb-1.5">Name</label>
@@ -63,17 +63,22 @@
     </div>
 
     <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Location</label>
-        <input type="text" name="location" value="{{ user.location or '' }}" placeholder="Your location"
+        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Major</label>
+        <input type="text" name="major" value="{{ user.major or '' }}" placeholder="e.g. Computer Science"
                class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
                       rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]">
     </div>
 
     <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Website</label>
-        <input type="text" name="website" value="{{ user.website or '' }}" placeholder="yourwebsite.com"
-               class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
-                      rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]">
+        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Year</label>
+        <select name="year"
+                class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                       rounded-xl px-4 py-3 text-white outline-none transition-colors text-[15px]">
+            <option value="">Select year</option>
+            {% for y in ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate'] %}
+            <option value="{{ y }}" {{ 'selected' if user.year == y else '' }}>{{ y }}</option>
+            {% endfor %}
+        </select>
     </div>
 
 </form>

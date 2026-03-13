@@ -5,7 +5,7 @@
 
 <div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center justify-between">
     <h1 class="text-xl font-bold">Messages</h1>
-    <a href="{{ url_for('follow.suggestions') }}"
+    <a href="{{ url_for('messages.search') }}"
        class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -14,36 +14,40 @@
     </a>
 </div>
 
-<!-- Search -->
-<div class="px-4 py-3 border-b border-zinc-800">
+<!-- Search bar -->
+<form action="{{ url_for('messages.search') }}" method="GET" class="px-4 py-3 border-b border-zinc-800">
     <div class="relative">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" placeholder="Search messages"
+        <input type="text" name="q" placeholder="Search people to message"
                class="w-full bg-zinc-900 rounded-full pl-9 pr-4 py-2 text-white placeholder-zinc-500
                       outline-none focus:ring-1 focus:ring-red-600 text-[14px]">
     </div>
-</div>
+</form>
 
 {% if conversations %}
     {% for convo in conversations %}
-    <a href="{{ url_for('messages.conversation', conversation_id=convo.id) }}"
+    <a href="{{ url_for('messages.conversation', partner_id=convo.partner.id) }}"
        class="flex items-center gap-3 px-4 py-3 border-b border-zinc-800
-              hover:bg-zinc-950 transition-colors {{ 'bg-red-600/5' if convo.is_unread else '' }}">
+              hover:bg-zinc-950 transition-colors {{ 'bg-red-600/5' if convo.unread > 0 else '' }}">
         <div class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-            {{ convo.participant.display_name[:2]|upper }}
+            {{ convo.partner.display_name[:2]|upper }}
         </div>
         <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
-                <span class="font-bold text-[15px]">{{ convo.participant.display_name }}</span>
-                <span class="text-zinc-500 text-[13px]">{{ convo.last_message_at|timeago }}</span>
+                <span class="font-bold text-[15px]">{{ convo.partner.display_name }}</span>
+                {% if convo.last_message %}
+                <span class="text-zinc-500 text-[13px]">{{ convo.last_message.sent_at|timeago }}</span>
+                {% endif %}
             </div>
-            <p class="text-zinc-500 text-[14px] truncate mt-0.5">{{ convo.last_message }}</p>
+            {% if convo.last_message %}
+            <p class="text-zinc-500 text-[14px] truncate mt-0.5">{{ convo.last_message.content }}</p>
+            {% endif %}
         </div>
-        {% if convo.is_unread %}
+        {% if convo.unread > 0 %}
         <div class="w-2.5 h-2.5 bg-red-600 rounded-full flex-shrink-0"></div>
         {% endif %}
     </a>
@@ -51,7 +55,11 @@
 {% else %}
 <div class="flex flex-col items-center justify-center py-20 px-8 text-center">
     <h3 class="font-bold text-lg mb-1">Welcome to your inbox</h3>
-    <p class="text-zinc-500 text-[15px]">Start a conversation with someone from your campus.</p>
+    <p class="text-zinc-500 text-[15px] mb-4">Start a conversation with someone from your campus.</p>
+    <a href="{{ url_for('messages.search') }}"
+       class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-full transition-colors text-[15px]">
+        New Message
+    </a>
 </div>
 {% endif %}
 

@@ -29,7 +29,7 @@
     <p class="text-[15px] leading-relaxed text-zinc-200 whitespace-pre-wrap">{{ problem.description }}</p>
 
     <div class="flex items-center gap-4 mt-4 text-[14px] text-zinc-500">
-        <form action="{{ url_for('forum.index') }}" method="POST" class="inline">
+        <form action="{{ url_for('forum.upvote_problem', problem_id=problem.id) }}" method="POST" class="inline">
             <button type="submit"
                     class="flex items-center gap-1.5 transition-colors
                            {{ 'text-red-500' if problem.is_upvoted_by_me else 'hover:text-red-400' }}">
@@ -53,13 +53,7 @@
     <p class="font-bold text-[16px]">{{ problem.answer_count }} Answers</p>
 </div>
 
-<!-- Placeholder answers -->
-{% set sample_answers = [
-    {'author': {'display_name': 'Sara Malik', 'username': 'sara_cs411'}, 'is_accepted': True,
-     'content': 'Great question! BCNF decomposition can lose functional dependency preservation because when you decompose a relation to eliminate a BCNF violation, you might split the relation in a way that the original functional dependency can no longer be checked without performing a join.\n\nFor example, consider R(A, B, C) with FDs: A→B, B→C, C→A. This relation has a BCNF violation. When you decompose it, you might get R1(A,B) and R2(B,C), which loses the FD C→A.',
-     'upvote_count': 14, 'created_at': '3h'},
-] %}
-{% for answer in sample_answers %}
+{% for answer in answers %}
 <div class="px-4 py-4 border-b border-zinc-800 {{ 'bg-green-500/5' if answer.is_accepted else '' }}">
     {% if answer.is_accepted %}
     <div class="flex items-center gap-1.5 text-green-400 text-[13px] font-medium mb-3">
@@ -75,26 +69,41 @@
         </div>
         <a href="{{ url_for('profile.view', username=answer.author.username) }}"
            class="font-bold text-[15px] hover:underline">{{ answer.author.display_name }}</a>
-        <span class="text-zinc-500 text-[14px]">· {{ answer.created_at }}</span>
+        <span class="text-zinc-500 text-[14px]">· {{ answer.created_at|timeago }}</span>
     </div>
     <p class="text-[15px] leading-relaxed whitespace-pre-wrap text-zinc-200">{{ answer.content }}</p>
     <div class="flex items-center gap-3 mt-3 text-zinc-500 text-[13px]">
-        <form action="{{ url_for('forum.index') }}" method="POST" class="inline">
-            <button class="flex items-center gap-1 hover:text-red-400 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <form action="{{ url_for('forum.upvote_answer', answer_id=answer.id) }}" method="POST" class="inline">
+            <button type="submit" class="flex items-center gap-1 transition-colors
+                           {{ 'text-red-500' if answer.is_upvoted_by_me else 'hover:text-red-400' }}">
+                <svg class="w-4 h-4" fill="{{ 'currentColor' if answer.is_upvoted_by_me else 'none' }}"
+                     stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
                 </svg>
                 {{ answer.upvote_count }}
             </button>
         </form>
+        {% if problem.user_id == current_user.id and not problem.has_accepted_answer %}
+        <form action="{{ url_for('forum.accept_answer', answer_id=answer.id) }}" method="POST" class="inline">
+            <button type="submit" class="text-green-400 hover:text-green-300 transition-colors">
+                ✓ Accept answer
+            </button>
+        </form>
+        {% endif %}
     </div>
 </div>
 {% endfor %}
 
+{% if not answers %}
+<div class="px-4 py-8 text-center text-zinc-500">
+    <p>No answers yet. Be the first to help!</p>
+</div>
+{% endif %}
+
 <!-- Answer Composer -->
 <div class="px-4 py-4 border-t border-zinc-800">
     <h3 class="font-bold text-[16px] mb-3">Your Answer</h3>
-    <form action="{{ url_for('forum.detail', problem_id=problem.id) }}" method="POST">
+    <form action="{{ url_for('forum.answer', problem_id=problem.id) }}" method="POST">
         <textarea name="content" placeholder="Write a detailed answer..."
                   rows="5"
                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
