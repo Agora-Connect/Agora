@@ -377,6 +377,38 @@ class GroupPost(db.Model):
     author = db.relationship('User')
 
 
+# ── GroupInvitation ───────────────────────────────────────────────────────────
+
+class GroupInvitation(db.Model):
+    __tablename__ = 'group_invitation'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    group_id   = db.Column(db.Integer, db.ForeignKey('study_group.id'), nullable=False)
+    inviter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    invitee_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status     = db.Column(db.String(20), default='pending')  # pending/accepted/declined
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    group   = db.relationship('Group')
+    inviter = db.relationship('User', foreign_keys=[inviter_id])
+    invitee = db.relationship('User', foreign_keys=[invitee_id])
+
+
+# ── GroupJoinRequest ──────────────────────────────────────────────────────────
+
+class GroupJoinRequest(db.Model):
+    __tablename__ = 'group_join_request'
+
+    id           = db.Column(db.Integer, primary_key=True)
+    group_id     = db.Column(db.Integer, db.ForeignKey('study_group.id'), nullable=False)
+    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status       = db.Column(db.String(20), default='pending')  # pending/approved/declined
+    created_at   = db.Column(db.DateTime, default=datetime.utcnow)
+
+    group     = db.relationship('Group')
+    requester = db.relationship('User')
+
+
 # ── BorrowRequest ─────────────────────────────────────────────────────────────
 
 class BorrowRequest(db.Model):

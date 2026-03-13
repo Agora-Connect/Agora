@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.name }} - Agora Groups{% endblock %}
+
+{% block content %}
+
+<div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center gap-3">
+    <a href="{{ url_for('groups.index') }}"
+       class="w-9 h-9 rounded-full hover:bg-zinc-900 flex items-center justify-center transition-colors text-zinc-300 flex-shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <h1 class="text-[17px] font-bold truncate">{{ group.name }}</h1>
+</div>
+
+<div class="flex flex-col items-center justify-center py-24 px-8 text-center">
+    <div class="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mb-5">
+        <svg class="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+    </div>
+    <h2 class="font-bold text-xl mb-2">This is a private group</h2>
+
+    <div class="flex items-center gap-2 mb-4 flex-wrap justify-center">
+        {% if group.course %}
+        <span class="text-[12px] bg-red-600/10 text-red-400 px-2.5 py-1 rounded-full">{{ group.course.code }}</span>
+        {% endif %}
+        <span class="text-[12px] bg-zinc-800 text-zinc-400 px-2.5 py-1 rounded-full">
+            {{ group.member_count }} member{{ 's' if group.member_count != 1 else '' }}
+        </span>
+    </div>
+
+    {% if group.description %}
+    <p class="text-zinc-500 text-[15px] max-w-xs mb-6">{{ group.description }}</p>
+    {% else %}
+    <p class="text-zinc-600 text-[15px] max-w-xs mb-6">You need to be invited or request access to join this group.</p>
+    {% endif %}
+
+    {% if my_request %}
+        {% if my_request.status == 'pending' %}
+        <div class="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-3 text-zinc-400 text-[14px]">
+            <svg class="w-4 h-4 inline mr-1.5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Request pending — waiting for admin approval
+        </div>
+        {% elif my_request.status == 'declined' %}
+        <p class="text-zinc-600 text-[14px] mb-4">Your previous request was declined.</p>
+        <form action="{{ url_for('groups.request_join', group_id=group.id) }}" method="POST">
+            <button type="submit"
+                    class="border border-zinc-600 hover:border-white text-zinc-300 hover:text-white
+                           font-semibold px-6 py-2.5 rounded-full text-[15px] transition-colors">
+                Request Again
+            </button>
+        </form>
+        {% endif %}
+    {% else %}
+    <form action="{{ url_for('groups.request_join', group_id=group.id) }}" method="POST">
+        <button type="submit"
+                class="bg-white hover:bg-zinc-200 text-black font-bold px-6 py-2.5 rounded-full text-[15px] transition-colors">
+            Request to Join
+        </button>
+    </form>
+    {% endif %}
+
+    <p class="text-zinc-600 text-[13px] mt-5">
+        Created by
+        <a href="{{ url_for('profile.view', username=group.creator.username) }}"
+           class="text-zinc-500 hover:underline">{{ group.creator.display_name }}</a>
+    </p>
+</div>
+
+{% endblock %}

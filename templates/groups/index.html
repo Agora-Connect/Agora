@@ -6,70 +6,141 @@
 <div class="sticky top-0 bg-black/80 backdrop-blur-md border-b border-zinc-800 z-10 px-4 py-3 flex items-center justify-between">
     <h1 class="text-xl font-bold">Groups</h1>
     <a href="{{ url_for('groups.create') }}"
-       class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded-full text-[14px] transition-colors">
+       class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded-full text-[14px] transition-colors flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
         New Group
     </a>
 </div>
 
-<!-- My Groups -->
+<!-- ── Pending Invitations ───────────────────────────────────────────────── -->
+{% if invitations %}
+<div class="px-4 pt-4 pb-1">
+    <p class="text-[13px] font-semibold text-yellow-400 uppercase tracking-wide flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+        Pending Invitations
+    </p>
+</div>
+{% for inv in invitations %}
+<div class="mx-4 my-2 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl px-4 py-3">
+    <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+            <p class="font-bold text-[15px]">{{ inv.group.name }}</p>
+            <p class="text-zinc-500 text-[13px] mt-0.5">
+                Invited by
+                <a href="{{ url_for('profile.view', username=inv.inviter.username) }}"
+                   class="text-zinc-300 hover:underline">{{ inv.inviter.display_name }}</a>
+                · {{ inv.group.member_count }} member{{ 's' if inv.group.member_count != 1 else '' }}
+                {% if inv.group.course %} · {{ inv.group.course.code }}{% endif %}
+            </p>
+            {% if inv.group.description %}
+            <p class="text-zinc-500 text-[13px] mt-1 truncate">{{ inv.group.description }}</p>
+            {% endif %}
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+            <form action="{{ url_for('groups.accept_invite', inv_id=inv.id) }}" method="POST">
+                <button type="submit"
+                        class="bg-white hover:bg-zinc-200 text-black font-bold px-3 py-1.5 rounded-full text-[13px] transition-colors">
+                    Accept
+                </button>
+            </form>
+            <form action="{{ url_for('groups.decline_invite', inv_id=inv.id) }}" method="POST">
+                <button type="submit"
+                        class="border border-zinc-600 hover:border-zinc-400 text-zinc-400 font-semibold px-3 py-1.5 rounded-full text-[13px] transition-colors">
+                    Decline
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+<div class="border-b border-zinc-800 mt-3"></div>
+{% endif %}
+
+<!-- ── My Groups ─────────────────────────────────────────────────────────── -->
 {% if my_groups %}
-<div class="px-4 pt-4 pb-2">
-    <p class="text-zinc-500 text-[13px] font-medium uppercase tracking-wide">My Groups</p>
+<div class="px-4 pt-4 pb-2 flex items-center justify-between">
+    <p class="text-zinc-500 text-[13px] font-semibold uppercase tracking-wide">My Groups</p>
+    <span class="text-zinc-600 text-[12px]">{{ my_groups|length }} group{{ 's' if my_groups|length != 1 else '' }}</span>
 </div>
 {% for group in my_groups %}
 <a href="{{ url_for('groups.detail', group_id=group.id) }}"
-   class="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 hover:bg-zinc-950 transition-colors block">
-    <div class="w-12 h-12 rounded-2xl bg-red-600/20 flex items-center justify-center flex-shrink-0">
-        <span class="text-red-400 font-bold text-[18px]">{{ group.name[:2]|upper }}</span>
+   class="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-800 hover:bg-zinc-950 transition-colors">
+
+    <!-- Avatar -->
+    <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 font-bold text-lg
+                bg-gradient-to-br from-red-700 to-red-900 text-white">
+        {{ group.name[:2]|upper }}
     </div>
+
     <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-            <p class="font-bold text-[15px]">{{ group.name }}</p>
+        <div class="flex items-center gap-2">
+            <p class="font-bold text-[15px] truncate">{{ group.name }}</p>
             {% if group.is_private %}
-            <span class="text-[11px] bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded">Private</span>
+            <svg class="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
             {% endif %}
-            {% if group.course %}
-            <span class="text-[11px] bg-zinc-900 text-zinc-400 px-1.5 py-0.5 rounded">{{ group.course.code }}</span>
+            {% if group.is_admin %}
+            <span class="text-[10px] bg-red-600/20 text-red-400 px-1.5 py-0.5 rounded font-semibold flex-shrink-0">ADMIN</span>
             {% endif %}
         </div>
+        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+            {% if group.course %}
+            <span class="text-[12px] text-zinc-500">{{ group.course.code }}</span>
+            <span class="text-zinc-700">·</span>
+            {% endif %}
+            <span class="text-[12px] text-zinc-500">{{ group.member_count }} member{{ 's' if group.member_count != 1 else '' }}</span>
+        </div>
         {% if group.description %}
-        <p class="text-zinc-500 text-[13px] mt-0.5 truncate">{{ group.description }}</p>
+        <p class="text-zinc-600 text-[13px] mt-0.5 truncate">{{ group.description }}</p>
         {% endif %}
-        <p class="text-zinc-600 text-[12px] mt-0.5">{{ group.member_count }} member{{ 's' if group.member_count != 1 else '' }}</p>
     </div>
-    <svg class="w-4 h-4 text-zinc-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+    <svg class="w-4 h-4 text-zinc-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
     </svg>
 </a>
 {% endfor %}
 {% endif %}
 
-<!-- Discover Groups -->
+<!-- ── Discover ───────────────────────────────────────────────────────────── -->
 {% if other_groups %}
-<div class="px-4 pt-5 pb-2">
-    <p class="text-zinc-500 text-[13px] font-medium uppercase tracking-wide">Discover</p>
+<div class="px-4 pt-5 pb-2 flex items-center justify-between {% if my_groups %}border-t border-zinc-800{% endif %}">
+    <p class="text-zinc-500 text-[13px] font-semibold uppercase tracking-wide">Discover</p>
+    <span class="text-zinc-600 text-[12px]">{{ other_groups|length }} public group{{ 's' if other_groups|length != 1 else '' }}</span>
 </div>
 {% for group in other_groups %}
-<div class="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 hover:bg-zinc-950 transition-colors">
-    <div class="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center flex-shrink-0">
-        <span class="text-zinc-400 font-bold text-[18px]">{{ group.name[:2]|upper }}</span>
+<div class="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-800 hover:bg-zinc-950 transition-colors">
+
+    <!-- Avatar -->
+    <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 font-bold text-lg
+                bg-zinc-800 text-zinc-400">
+        {{ group.name[:2]|upper }}
     </div>
+
     <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-            <p class="font-bold text-[15px]">{{ group.name }}</p>
+        <p class="font-bold text-[15px] truncate">{{ group.name }}</p>
+        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
             {% if group.course %}
-            <span class="text-[11px] bg-zinc-900 text-zinc-400 px-1.5 py-0.5 rounded">{{ group.course.code }}</span>
+            <span class="text-[12px] text-zinc-500">{{ group.course.code }}</span>
+            <span class="text-zinc-700">·</span>
             {% endif %}
+            <span class="text-[12px] text-zinc-500">{{ group.member_count }} member{{ 's' if group.member_count != 1 else '' }}</span>
         </div>
         {% if group.description %}
-        <p class="text-zinc-500 text-[13px] mt-0.5 truncate">{{ group.description }}</p>
+        <p class="text-zinc-600 text-[13px] mt-0.5 truncate">{{ group.description }}</p>
         {% endif %}
-        <p class="text-zinc-600 text-[12px] mt-0.5">{{ group.member_count }} member{{ 's' if group.member_count != 1 else '' }}</p>
     </div>
+
     <form action="{{ url_for('groups.join', group_id=group.id) }}" method="POST" class="flex-shrink-0">
         <button type="submit"
-                class="border border-zinc-600 hover:border-red-500 hover:text-red-400 text-white
-                       font-semibold px-3 py-1.5 rounded-full text-[13px] transition-colors">
+                class="border border-zinc-600 hover:border-white hover:text-white text-zinc-300
+                       font-semibold px-4 py-1.5 rounded-full text-[13px] transition-colors">
             Join
         </button>
     </form>
@@ -77,19 +148,22 @@
 {% endfor %}
 {% endif %}
 
-{% if not my_groups and not other_groups %}
-<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
-    <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
-        <svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+<!-- ── Empty state ────────────────────────────────────────────────────────── -->
+{% if not my_groups and not other_groups and not invitations %}
+<div class="flex flex-col items-center justify-center py-24 px-8 text-center">
+    <div class="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mb-5">
+        <svg class="w-10 h-10 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
     </div>
-    <h3 class="font-bold text-lg mb-1">No groups yet</h3>
-    <p class="text-zinc-500 text-[15px] mb-4">Create a study group for your course and invite classmates.</p>
+    <h3 class="font-bold text-lg mb-2">No groups yet</h3>
+    <p class="text-zinc-500 text-[15px] max-w-xs mb-5">
+        Create a study group for your course and collaborate with classmates.
+    </p>
     <a href="{{ url_for('groups.create') }}"
-       class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded-full text-[14px] transition-colors">
-        Create a Group
+       class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-full text-[15px] transition-colors">
+        Create your first group
     </a>
 </div>
 {% endif %}
