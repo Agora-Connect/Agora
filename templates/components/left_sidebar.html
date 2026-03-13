@@ -160,7 +160,7 @@
                 Settings
             </a>
             <div class="border-t border-zinc-800"></div>
-            <form action="{{ url_for('auth.logout') }}" method="POST">
+            <form action="{{ url_for('auth.logout') }}" method="POST" hx-boost="false">
                 <button type="submit"
                         class="w-full text-left px-4 py-3 hover:bg-zinc-800 transition-colors text-[15px] text-red-400 font-medium">
                     Log out @{{ current_user.username }}
