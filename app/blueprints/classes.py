@@ -53,3 +53,31 @@ def unenroll(course_id):
         db.session.delete(existing)
         db.session.commit()
     return redirect(url_for('classes.detail', course_id=course_id))
+
+
+@classes_bp.route('/create', methods=['POST'])
+@login_required
+def create():
+    code = request.form.get('code', '').strip().upper()
+    name = request.form.get('name', '').strip()
+    description = request.form.get('description', '').strip()
+
+    if not code or not name:
+        return redirect(url_for('classes.index'))
+
+    # If course code already exists, just enroll the user
+    existing = Course.query.filter_by(code=code).first()
+    if existing:
+        if not Enrollment.query.filter_by(user_id=current_user.id,
+                                          course_id=existing.id).first():
+            db.session.add(Enrollment(user_id=current_user.id,
+                                      course_id=existing.id))
+            db.session.commit()
+        return redirect(url_for('classes.detail', course_id=existing.id))
+
+    course = Course(code=code, name=name, description=description or None)
+    db.session.add(course)
+    db.session.flush()
+    db.session.add(Enrollment(user_id=current_user.id, course_id=course.id))
+    db.session.commit()
+    return redirect(url_for('classes.detail', course_id=course.id))

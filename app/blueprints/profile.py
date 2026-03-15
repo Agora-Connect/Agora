@@ -1,9 +1,24 @@
+import base64
 from flask import Blueprint, render_template, redirect, url_for, request, abort
 from flask_login import login_required, current_user
 from app.models import db, User, Post, Follow, UpvoteOnPost, CommentOnPost
 from app.utils import enrich_posts
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
+
+MAX_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MB
+
+
+def _save_image(file_field):
+    """Read an uploaded file, validate size/type, return base64 data URL or None."""
+    f = request.files.get(file_field)
+    if not f or f.filename == '':
+        return None
+    data = f.read(MAX_IMAGE_BYTES + 1)
+    if len(data) > MAX_IMAGE_BYTES:
+        return None  # silently ignore oversized — UX message handled in template
+    mime = f.content_type or 'image/jpeg'
+    return f"data:{mime};base64,{base64.b64encode(data).decode()}"
 
 
 @profile_bp.route('/<username>')
@@ -51,6 +66,15 @@ def edit(username):
         current_user.bio   = request.form.get('bio', '').strip()
         current_user.major = request.form.get('major', '').strip()
         current_user.year  = request.form.get('year', '').strip()
+
+        avatar = _save_image('avatar_file')
+        if avatar:
+            current_user.avatar_url = avatar
+
+        banner = _save_image('banner_file')
+        if banner:
+            current_user.banner_url = banner
+
         db.session.commit()
         return redirect(url_for('profile.view', username=current_user.username))
 

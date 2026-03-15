@@ -15,71 +15,113 @@
     </button>
 </div>
 
-<!-- Banner -->
-<div class="h-28 bg-gradient-to-br from-red-900/40 to-zinc-900 relative">
-    <label class="absolute inset-0 flex items-center justify-center cursor-pointer hover:bg-black/30 transition-colors">
-        <input type="file" accept="image/*" class="hidden">
-        <svg class="w-8 h-8 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-    </label>
-</div>
+<form id="edit-form" action="{{ url_for('profile.edit', username=user.username) }}" method="POST"
+      enctype="multipart/form-data" class="pb-8">
 
-<!-- Avatar -->
-<div class="px-4 -mt-10 mb-4">
-    <label class="relative w-20 h-20 block cursor-pointer group">
-        <div class="w-20 h-20 rounded-full bg-red-600 border-4 border-black flex items-center justify-center text-white text-2xl font-bold">
-            {{ user.display_name[:2]|upper }}
+    <!-- Banner preview + upload -->
+    <div class="relative h-28 bg-zinc-900 group overflow-hidden">
+        {% if user.banner_url %}
+        <img src="{{ user.banner_url }}" class="w-full h-full object-cover" id="banner-preview">
+        {% else %}
+        <div class="w-full h-full bg-gradient-to-br from-red-900/40 to-zinc-900"
+             id="banner-preview-placeholder"></div>
+        <img src="" class="hidden w-full h-full object-cover" id="banner-preview">
+        {% endif %}
+        <label class="absolute inset-0 flex items-center justify-center bg-black/40
+                       opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer gap-3">
+            <div class="flex items-center gap-2 bg-black/70 rounded-full px-4 py-2">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-white text-[13px] font-medium">Change cover</span>
+            </div>
+            <input type="file" name="banner_file" accept="image/*" class="hidden"
+                   onchange="previewImg(this,'banner-preview','banner-preview-placeholder')">
+        </label>
+    </div>
+
+    <!-- Avatar preview + upload -->
+    <div class="px-4 -mt-10 mb-5">
+        <label class="relative w-20 h-20 block cursor-pointer group">
+            {% if user.avatar_url %}
+            <img src="{{ user.avatar_url }}" id="avatar-preview"
+                 class="w-20 h-20 rounded-full border-4 border-black object-cover">
+            {% else %}
+            <div class="w-20 h-20 rounded-full bg-red-600 border-4 border-black flex items-center
+                        justify-center text-white text-2xl font-bold" id="avatar-placeholder">
+                {{ user.display_name[:2]|upper }}
+            </div>
+            <img src="" id="avatar-preview" class="hidden w-20 h-20 rounded-full border-4 border-black object-cover">
+            {% endif %}
+            <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center
+                        opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                </svg>
+            </div>
+            <input type="file" name="avatar_file" accept="image/*" class="hidden"
+                   onchange="previewImg(this,'avatar-preview','avatar-placeholder')">
+        </label>
+        <p class="text-zinc-600 text-[12px] mt-1">Click to change photo · Max 2MB</p>
+    </div>
+
+    <div class="px-4 space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Name</label>
+            <input type="text" name="name" value="{{ user.display_name }}"
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white outline-none transition-colors text-[15px]">
         </div>
-        <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-            </svg>
+
+        <div>
+            <div class="flex items-center justify-between mb-1.5">
+                <label class="text-sm font-medium text-zinc-400">Bio</label>
+                <span class="text-xs text-zinc-600">{{ user.bio|length if user.bio else 0 }}/160</span>
+            </div>
+            <textarea name="bio" maxlength="160" rows="3"
+                      class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                             rounded-xl px-4 py-3 text-white outline-none transition-colors resize-none text-[15px]">{{ user.bio or '' }}</textarea>
         </div>
-        <input type="file" accept="image/*" class="hidden">
-    </label>
-</div>
 
-<form id="edit-form" action="{{ url_for('profile.edit', username=user.username) }}" method="POST" class="px-4 space-y-4 pb-8">
-
-    <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Name</label>
-        <input type="text" name="name" value="{{ user.display_name }}"
-               class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
-                      rounded-xl px-4 py-3 text-white outline-none transition-colors text-[15px]">
-    </div>
-
-    <div>
-        <div class="flex items-center justify-between mb-1.5">
-            <label class="text-sm font-medium text-zinc-400">Bio</label>
-            <span class="text-xs text-zinc-600">{{ user.bio|length if user.bio else 0 }}/160</span>
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Major</label>
+            <input type="text" name="major" value="{{ user.major or '' }}" placeholder="e.g. Computer Science"
+                   class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                          rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]">
         </div>
-        <textarea name="bio" maxlength="160" rows="3"
-                  class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
-                         rounded-xl px-4 py-3 text-white outline-none transition-colors resize-none text-[15px]">{{ user.bio or '' }}</textarea>
-    </div>
 
-    <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Major</label>
-        <input type="text" name="major" value="{{ user.major or '' }}" placeholder="e.g. Computer Science"
-               class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
-                      rounded-xl px-4 py-3 text-white placeholder-zinc-600 outline-none transition-colors text-[15px]">
+        <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-1.5">Year</label>
+            <select name="year"
+                    class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
+                           rounded-xl px-4 py-3 text-white outline-none transition-colors text-[15px]">
+                <option value="">Select year</option>
+                {% for y in ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate'] %}
+                <option value="{{ y }}" {{ 'selected' if user.year == y else '' }}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
-
-    <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Year</label>
-        <select name="year"
-                class="w-full bg-zinc-900 border border-zinc-700 focus:border-red-600
-                       rounded-xl px-4 py-3 text-white outline-none transition-colors text-[15px]">
-            <option value="">Select year</option>
-            {% for y in ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate'] %}
-            <option value="{{ y }}" {{ 'selected' if user.year == y else '' }}>{{ y }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
 </form>
+
+<script>
+function previewImg(input, previewId, placeholderId) {
+    if (!input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var preview = document.getElementById(previewId);
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        if (placeholderId) {
+            var ph = document.getElementById(placeholderId);
+            if (ph) ph.classList.add('hidden');
+        }
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+
 {% endblock %}
