@@ -52,113 +52,158 @@
         </div>
     </div>
 
-    <!-- ── Campus Events ──────────────────────────────────────────────────── -->
-    {% if sidebar_events %}
-    <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
+    {# ── theme helper macro ─────────────────────────────────────────────── #}
+    {%- macro theme_bg(t) -%}
+        {%- if t == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-950
+        {%- elif t == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-950
+        {%- elif t == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-950
+        {%- elif t == 'Fundraising' %}bg-gradient-to-br from-green-700 to-green-950
+        {%- elif t == 'CommunityService' %}bg-gradient-to-br from-teal-600 to-teal-950
+        {%- elif t == 'Cultural' %}bg-gradient-to-br from-orange-600 to-orange-950
+        {%- elif t == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-600 to-sky-950
+        {%- else %}bg-gradient-to-br from-red-800 to-zinc-950
+        {%- endif -%}
+    {%- endmacro -%}
 
-        <div class="flex items-center justify-between px-4 pt-3.5 pb-2">
-            <p class="font-bold text-[15px]">Upcoming Events</p>
-            <a href="{{ url_for('events.index') }}" target="_blank" rel="noopener"
+    <!-- ── Upcoming Events ───────────────────────────────────────────────── -->
+    {% if sidebar_events %}
+    <div class="rounded-2xl overflow-hidden border border-zinc-800">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 bg-zinc-900/80">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="font-bold text-[14px]">Upcoming Events</span>
+            </div>
+            <a href="{{ url_for('events.index') }}"
                class="text-red-500 hover:text-red-400 text-[12px] font-medium transition-colors">
-                See all
+                See all →
             </a>
         </div>
 
-        <!-- Featured first event — big image -->
+        <!-- Featured event — full-width hero card -->
         {% set ev = sidebar_events[0] %}
-        <a href="{{ ev.url }}" target="_blank" rel="noopener" class="block group">
-            <div class="mx-3 mb-3 rounded-xl overflow-hidden relative h-36
-                        {% if ev.theme == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-900
-                        {% elif ev.theme == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-900
-                        {% elif ev.theme == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-900
-                        {% elif ev.theme == 'Fundraising' %}bg-gradient-to-br from-green-700 to-green-900
-                        {% elif ev.theme == 'CommunityService' %}bg-gradient-to-br from-teal-700 to-teal-900
-                        {% elif ev.theme == 'Cultural' %}bg-gradient-to-br from-orange-700 to-orange-900
-                        {% elif ev.theme == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-700 to-sky-900
-                        {% else %}bg-gradient-to-br from-red-800 to-red-950{% endif %}">
-                <!-- Gradient initials shown when no image -->
-                <span class="absolute inset-0 flex items-center justify-center text-white/20 font-black text-5xl select-none">
+        <a href="{{ ev.url }}" target="_blank" rel="noopener noreferrer" class="block group">
+            <div class="relative h-40 {{ theme_bg(ev.theme) }}">
+                <!-- Large initials watermark behind image -->
+                <span class="absolute inset-0 flex items-center justify-center
+                             text-white/10 font-black text-7xl select-none pointer-events-none">
                     {{ ev.name[:2]|upper }}
                 </span>
-                <!-- Event image on top — if it fails onerror hides it, gradient shows through -->
+                <!-- Actual event photo — referrerpolicy bypasses CDN hotlink protection -->
                 {% if ev.img %}
-                <img src="{{ ev.img }}" alt="{{ ev.name }}"
+                <img src="{{ ev.img }}"
+                     referrerpolicy="no-referrer"
+                     crossorigin="anonymous"
+                     alt="{{ ev.name }}"
                      class="absolute inset-0 w-full h-full object-cover"
                      onerror="this.style.display='none'">
                 {% endif %}
-                <!-- Text overlay always on top -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-2.5">
-                    <p class="text-white font-semibold text-[13px] leading-snug line-clamp-2 group-hover:text-red-300 transition-colors">{{ ev.name }}</p>
-                    <p class="text-red-400 text-[11px] mt-0.5">{{ ev.date }}{% if ev.time %} · {{ ev.time }}{% endif %}</p>
+                <!-- Bottom scrim -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                <!-- Event info on top of image -->
+                <div class="absolute bottom-0 left-0 right-0 p-3">
+                    <p class="text-white font-bold text-[13px] leading-snug line-clamp-2
+                               group-hover:text-red-300 transition-colors">{{ ev.name }}</p>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                        <span class="text-red-400 text-[11px] font-semibold">{{ ev.date }}</span>
+                        {% if ev.time %}
+                        <span class="text-zinc-500 text-[11px]">· {{ ev.time }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-1 mt-0.5">
+                        <svg class="w-3 h-3 text-zinc-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span class="text-zinc-500 text-[11px] truncate">{{ ev.location }}</span>
+                    </div>
+                    {% if ev.org %}
+                    <p class="text-zinc-600 text-[11px] mt-0.5 truncate">{{ ev.org }}</p>
+                    {% endif %}
                 </div>
             </div>
         </a>
 
-        <!-- Remaining events — compact rows -->
+        <!-- Remaining 3 events — compact rows -->
         {% for ev in sidebar_events[1:] %}
-        <a href="{{ ev.url }}" target="_blank" rel="noopener"
-           class="flex items-center gap-2.5 px-3 py-2 hover:bg-zinc-800/60 transition-colors group {% if not loop.last %}border-b border-zinc-800/50{% endif %}">
+        <a href="{{ ev.url }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 px-3 py-2.5 border-t border-zinc-800 hover:bg-zinc-900/60 transition-colors group">
 
-            <!-- Thumbnail: gradient bg + image on top -->
-            <div class="w-10 h-10 rounded-lg flex-shrink-0 relative overflow-hidden
-                        {% if ev.theme == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-900
-                        {% elif ev.theme == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-900
-                        {% elif ev.theme == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-900
-                        {% elif ev.theme == 'Fundraising' %}bg-gradient-to-br from-green-700 to-green-900
-                        {% elif ev.theme == 'CommunityService' %}bg-gradient-to-br from-teal-700 to-teal-900
-                        {% elif ev.theme == 'Cultural' %}bg-gradient-to-br from-orange-700 to-orange-900
-                        {% elif ev.theme == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-700 to-sky-900
-                        {% else %}bg-gradient-to-br from-red-800 to-red-950{% endif %}">
-                <span class="absolute inset-0 flex items-center justify-center text-white/30 font-black text-[11px]">{{ ev.name[:2]|upper }}</span>
+            <!-- Square thumbnail: gradient bg + photo on top -->
+            <div class="w-12 h-12 rounded-xl flex-shrink-0 relative overflow-hidden {{ theme_bg(ev.theme) }}">
+                <span class="absolute inset-0 flex items-center justify-center
+                             text-white/20 font-black text-[13px] select-none">{{ ev.name[:2]|upper }}</span>
                 {% if ev.img %}
-                <img src="{{ ev.img }}" alt=""
+                <img src="{{ ev.img }}"
+                     referrerpolicy="no-referrer"
+                     crossorigin="anonymous"
+                     alt=""
                      class="absolute inset-0 w-full h-full object-cover"
                      onerror="this.style.display='none'">
                 {% endif %}
             </div>
 
             <div class="flex-1 min-w-0">
-                <p class="text-[12px] font-semibold leading-snug line-clamp-1 group-hover:text-red-400 transition-colors">{{ ev.name }}</p>
-                <p class="text-red-500 text-[11px]">{{ ev.date }}{% if ev.time %}<span class="text-zinc-600"> · {{ ev.time }}</span>{% endif %}</p>
-                <p class="text-zinc-600 text-[11px] truncate">{{ ev.location }}</p>
+                <p class="text-[12px] font-semibold leading-snug line-clamp-2
+                           group-hover:text-red-400 transition-colors text-zinc-100">{{ ev.name }}</p>
+                <p class="text-red-500 text-[11px] mt-0.5 font-medium">
+                    {{ ev.date }}{% if ev.time %}<span class="text-zinc-600 font-normal"> · {{ ev.time }}</span>{% endif %}
+                </p>
+                <p class="text-zinc-600 text-[10px] truncate">{{ ev.location }}</p>
             </div>
         </a>
         {% endfor %}
 
-        <p class="text-zinc-700 text-[10px] px-4 py-2">Powered by Huskies Connect · SCSU</p>
+        <div class="px-4 py-2 border-t border-zinc-800/50 bg-zinc-900/40">
+            <p class="text-zinc-700 text-[10px]">Powered by Huskies Connect · SCSU</p>
+        </div>
     </div>
     {% endif %}
 
     <!-- ── Latest News ────────────────────────────────────────────────────── -->
     {% if sidebar_news %}
-    <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
+    <div class="rounded-2xl overflow-hidden border border-zinc-800">
 
-        <div class="flex items-center justify-between px-4 pt-3.5 pb-2.5">
-            <p class="font-bold text-[15px]">Latest News</p>
-            <a href="https://huskiesconnect.stcloudstate.edu/news" target="_blank" rel="noopener"
+        <div class="flex items-center justify-between px-4 py-3 bg-zinc-900/80">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                </svg>
+                <span class="font-bold text-[14px]">Campus News</span>
+            </div>
+            <a href="https://huskiesconnect.stcloudstate.edu/news" target="_blank" rel="noopener noreferrer"
                class="text-red-500 hover:text-red-400 text-[12px] font-medium transition-colors">
-                See all
+                See all →
             </a>
         </div>
 
         {% for n in sidebar_news %}
-        <a href="{{ n.url }}" target="_blank" rel="noopener"
-           class="flex items-start gap-2.5 px-3 py-2.5 hover:bg-zinc-800/60 transition-colors group border-t border-zinc-800/50">
-            <div class="w-12 h-12 rounded-lg flex-shrink-0 relative overflow-hidden bg-gradient-to-br from-red-800 to-red-950">
-                <span class="absolute inset-0 flex items-center justify-center text-white/30 font-black text-[11px]">SC</span>
+        <a href="{{ n.url }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-start gap-3 px-3 py-2.5 border-t border-zinc-800 hover:bg-zinc-900/60 transition-colors group">
+            <div class="w-12 h-12 rounded-xl flex-shrink-0 relative overflow-hidden bg-gradient-to-br from-red-800 to-zinc-950">
+                <span class="absolute inset-0 flex items-center justify-center text-white/20 font-black text-[11px] select-none">SC</span>
                 {% if n.img %}
-                <img src="{{ n.img }}" alt=""
+                <img src="{{ n.img }}"
+                     referrerpolicy="no-referrer"
+                     crossorigin="anonymous"
+                     alt=""
                      class="absolute inset-0 w-full h-full object-cover"
                      onerror="this.style.display='none'">
                 {% endif %}
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-[12px] font-semibold leading-snug line-clamp-2 group-hover:text-red-400 transition-colors">{{ n.title }}</p>
+                <p class="text-[12px] font-semibold leading-snug line-clamp-2 text-zinc-100
+                           group-hover:text-red-400 transition-colors">{{ n.title }}</p>
                 {% if n.org %}
-                <p class="text-zinc-600 text-[11px] mt-0.5 truncate">{{ n.org }}</p>
+                <p class="text-zinc-600 text-[10px] mt-0.5 truncate">{{ n.org }}</p>
                 {% endif %}
-                <p class="text-zinc-600 text-[11px]">{{ n.date }}</p>
+                <p class="text-zinc-600 text-[10px] mt-0.5">{{ n.date }}</p>
             </div>
         </a>
         {% endfor %}
@@ -167,31 +212,41 @@
 
     <!-- ── Organizations ──────────────────────────────────────────────────── -->
     {% if sidebar_orgs %}
-    <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4">
-        <div class="flex items-center justify-between mb-3">
-            <p class="font-bold text-[15px]">Organizations</p>
-            <a href="https://huskiesconnect.stcloudstate.edu/organizations" target="_blank" rel="noopener"
+    <div class="rounded-2xl overflow-hidden border border-zinc-800">
+
+        <div class="flex items-center justify-between px-4 py-3 bg-zinc-900/80">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="font-bold text-[14px]">Organizations</span>
+            </div>
+            <a href="https://huskiesconnect.stcloudstate.edu/organizations" target="_blank" rel="noopener noreferrer"
                class="text-red-500 hover:text-red-400 text-[12px] font-medium transition-colors">
-                See all
+                See all →
             </a>
         </div>
-        <div class="grid grid-cols-3 gap-2">
+
+        <div class="grid grid-cols-3 gap-2 p-3">
             {% for org in sidebar_orgs %}
-            <a href="{{ org.url }}" target="_blank" rel="noopener"
+            <a href="{{ org.url }}" target="_blank" rel="noopener noreferrer"
                class="flex flex-col items-center gap-1.5 group">
-                {% if org.img %}
-                <img src="{{ org.img }}" alt="{{ org.name }}"
-                     class="w-14 h-14 rounded-xl object-cover bg-zinc-800 border border-zinc-700 group-hover:border-red-600 transition-colors"
-                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                {% endif %}
-                <div class="w-14 h-14 rounded-xl bg-zinc-800 border border-zinc-700 group-hover:border-red-600
-                            transition-colors items-center justify-center text-white font-bold text-[13px]
-                            {% if not org.img %}flex{% else %}hidden{% endif %}">
-                    {{ org.name[:2]|upper }}
+                <div class="w-14 h-14 rounded-xl relative overflow-hidden bg-zinc-800 border border-zinc-700
+                            group-hover:border-red-600 transition-colors">
+                    {% if org.img %}
+                    <img src="{{ org.img }}"
+                         referrerpolicy="no-referrer"
+                         crossorigin="anonymous"
+                         alt="{{ org.name }}"
+                         class="absolute inset-0 w-full h-full object-cover"
+                         onerror="this.style.display='none'">
+                    {% endif %}
+                    <span class="absolute inset-0 flex items-center justify-center
+                                 text-zinc-500 font-bold text-[13px] select-none">{{ org.name[:2]|upper }}</span>
                 </div>
-                <p class="text-[10px] text-zinc-500 text-center line-clamp-2 leading-tight group-hover:text-zinc-300 transition-colors">
-                    {{ org.name }}
-                </p>
+                <p class="text-[10px] text-zinc-500 text-center line-clamp-2 leading-tight
+                           group-hover:text-zinc-300 transition-colors px-0.5">{{ org.name }}</p>
             </a>
             {% endfor %}
         </div>

@@ -40,32 +40,47 @@ def _fmt_dt(iso):
         return iso[:10], ''
 
 
+def _parse_dt(raw):
+    """Parse API datetime string to UTC-aware datetime. Returns None on failure."""
+    if not raw:
+        return None
+    try:
+        # Handle both 'Z' suffix and offset like '-06:00'
+        s = raw.replace('Z', '+00:00')
+        dt = datetime.fromisoformat(s)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        # Normalise to UTC
+        return dt.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
 def _fetch_events(limit=20):
-    now_ts = time.time()
-    if _cache['data'] and (now_ts - _cache['ts']) < CACHE_TTL:
+    now_ts  = time.time()
+    utc_now = datetime.now(timezone.utc)
+
+    if _cache['data'] is not None and (now_ts - _cache['ts']) < CACHE_TTL:
         return _cache['data']
     try:
-        utc_now = datetime.now(timezone.utc)
         resp = http.get(HC_API, params={
             'endsAfter':        utc_now.strftime('%Y-%m-%dT%H:%M:%SZ'),
-            'startsAfter':      utc_now.strftime('%Y-%m-%dT%H:%M:%SZ'),
             'orderByField':     'startsOn',
             'orderByDirection': 'ascending',
             'status':           'Approved',
-            'limit':            limit,
+            'limit':            limit * 3,   # fetch extra; we'll filter client-side
             'skip':             0,
-        }, timeout=6)
+        }, timeout=8)
         resp.raise_for_status()
+
         events = []
         for e in resp.json().get('value', []):
-            # Client-side guard: skip anything that started before today
             starts_raw = e.get('startsOn', '')
-            try:
-                starts_dt = datetime.fromisoformat(starts_raw.replace('Z', '+00:00'))
-                if starts_dt.replace(tzinfo=timezone.utc) < utc_now.replace(tzinfo=None).replace(tzinfo=timezone.utc):
-                    pass  # still include — startsAfter API param should handle this
-            except Exception:
-                pass
+            starts_dt  = _parse_dt(starts_raw)
+
+            # Hard client-side filter — skip anything that started in the past
+            if starts_dt and starts_dt <= utc_now:
+                continue
 
             date_str, time_str = _fmt_dt(starts_raw)
             events.append({
@@ -75,27 +90,16 @@ def _fetch_events(limit=20):
                 'location':   e.get('location') or 'SCSU Campus',
                 'date':       date_str,
                 'time':       time_str,
-                'starts_raw': starts_raw,
                 'theme':      e.get('theme', ''),
                 'categories': e.get('categoryNames', []),
                 'benefits':   e.get('benefitNames', []),
                 'rsvp':       e.get('rsvpTotal', 0),
                 'img':        _img(e.get('imagePath')),
-                'blurb':      _strip_html(e.get('description', ''))[:160],
+                'blurb':      _strip_html(e.get('description', '')),
                 'url':        f"{HC_BASE}/event/{e.get('id')}",
             })
-
-        # Client-side filter: only future events
-        def _starts_future(ev):
-            try:
-                dt = datetime.fromisoformat(ev['starts_raw'].replace('Z', '+00:00'))
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-                return dt > utc_now
-            except Exception:
-                return True  # keep if we can't parse
-
-        events = [ev for ev in events if _starts_future(ev)]
+            if len(events) >= limit:
+                break
 
         _cache['data'] = events
         _cache['ts']   = now_ts
