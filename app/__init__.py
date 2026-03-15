@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Response
 from flask_login import LoginManager
 from config import Config
 from app.models import db, User
@@ -61,12 +61,35 @@ def create_app():
     app.register_blueprint(events_bp)
     app.register_blueprint(errors_bp)
 
+    # favicon.ico — browsers always request this regardless of <link> tag
+    @app.route('/favicon.ico')
+    def favicon():
+        svg = (
+            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
+            "<rect width='100' height='100' rx='22' fill='%23DC2626'/>"
+            "<text x='50' y='72' font-size='68' font-family='system-ui,sans-serif' "
+            "font-weight='900' fill='white' text-anchor='middle'>A</text></svg>"
+        )
+        return Response(svg.replace('%23', '#'), mimetype='image/svg+xml')
+
     # CLI: flask init-db  ->  creates all tables + seeds SCSU courses
     @app.cli.command('init-db')
     def init_db():
         db.create_all()
         _seed_courses()
         print('Database initialized and courses seeded.')
+
+    # CLI: flask upgrade-columns -> widens avatar_url/banner_url to TEXT
+    @app.cli.command('upgrade-columns')
+    def upgrade_columns():
+        with db.engine.connect() as conn:
+            conn.execute(db.text(
+                "ALTER TABLE \"user\" "
+                "ALTER COLUMN avatar_url TYPE TEXT, "
+                "ALTER COLUMN banner_url TYPE TEXT"
+            ))
+            conn.commit()
+        print('Columns upgraded to TEXT.')
 
     return app
 
