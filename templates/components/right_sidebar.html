@@ -68,15 +68,22 @@
             <a href="{{ ev.url }}" target="_blank" rel="noopener"
                class="flex items-start gap-2.5 group">
                 {% if ev.img %}
-                <img src="{{ ev.img }}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-zinc-800">
-                {% else %}
-                <div class="w-10 h-10 rounded-lg flex-shrink-0 bg-zinc-800 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
+                <img src="{{ ev.img }}" alt=""
+                     class="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-zinc-800"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                 {% endif %}
+                <div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center text-white font-bold text-[13px]
+                            {% if not ev.img %}flex{% else %}hidden{% endif %}
+                            {% if ev.theme == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-900
+                            {% elif ev.theme == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-900
+                            {% elif ev.theme == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-900
+                            {% elif ev.theme == 'Fundraising' %}bg-gradient-to-br from-green-700 to-green-900
+                            {% elif ev.theme == 'CommunityService' %}bg-gradient-to-br from-teal-700 to-teal-900
+                            {% elif ev.theme == 'Cultural' %}bg-gradient-to-br from-orange-700 to-orange-900
+                            {% elif ev.theme == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-700 to-sky-900
+                            {% else %}bg-gradient-to-br from-red-700 to-red-900{% endif %}">
+                    {{ ev.name[:2]|upper }}
+                </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-[13px] font-semibold leading-snug line-clamp-2 group-hover:text-red-400 transition-colors">{{ ev.name }}</p>
                     <p class="text-red-500 text-[11px] mt-0.5">{{ ev.date }}
