@@ -33,9 +33,19 @@ def _img(path, preset='medium-sq'):
 
 
 def _fmt_dt(iso):
+    """Return (date_str, time_str) in SCSU local time (Central, UTC-5/CDT)."""
     try:
-        dt = datetime.fromisoformat(iso)
-        return dt.strftime('%b %-d'), dt.strftime('%-I:%M %p')
+        from datetime import timedelta
+        dt = datetime.fromisoformat(iso.replace('Z', '+00:00'))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        # Convert to Central time (CDT = UTC-5, CST = UTC-6)
+        # Use UTC-5 as default (most of spring/fall semester is CDT)
+        central = timezone(timedelta(hours=-5))
+        dt = dt.astimezone(central)
+        date_str = dt.strftime('%a, %b %-d')   # e.g. "Mon, Mar 16"
+        time_str = dt.strftime('%-I:%M %p')    # e.g. "4:00 PM"
+        return date_str, time_str
     except Exception:
         return iso[:10], ''
 
