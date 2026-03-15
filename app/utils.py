@@ -38,13 +38,20 @@ def inject_globals():
         has_unread_messages = Message.query.filter_by(
             recipient_id=current_user.id, is_read=False
         ).count() > 0
-        from app.blueprints.events import _fetch_events
-        sidebar_events = (_fetch_events(limit=5) or [])[:5]
+        from app.blueprints.events import _fetch_events, _fetch_news, _fetch_orgs
+        sidebar_events = (_fetch_events(limit=4) or [])[:4]
+        sidebar_news   = _fetch_news(limit=3)
+        sidebar_orgs   = _fetch_orgs(limit=6)
+    else:
+        sidebar_news = []
+        sidebar_orgs = []
 
     return {
-        'notification_count': notification_count,
+        'notification_count':  notification_count,
         'has_unread_messages': has_unread_messages,
-        'sidebar_events': sidebar_events,
+        'sidebar_events':      sidebar_events,
+        'sidebar_news':        sidebar_news,
+        'sidebar_orgs':        sidebar_orgs,
     }
 
 
