@@ -18,33 +18,34 @@
 <form id="edit-form" action="{{ url_for('profile.edit', username=user.username) }}" method="POST"
       enctype="multipart/form-data" hx-boost="false" class="pb-8">
 
-    <!-- Banner preview + upload -->
-    <div class="relative h-28 bg-zinc-900 group overflow-hidden">
+    <!-- Banner -->
+    <div class="relative h-28 bg-zinc-900 overflow-hidden">
         {% if user.banner_url %}
         <img src="{{ user.banner_url }}" class="w-full h-full object-cover" id="banner-preview">
         {% else %}
-        <div class="w-full h-full bg-gradient-to-br from-red-900/40 to-zinc-900"
-             id="banner-preview-placeholder"></div>
+        <div class="w-full h-full bg-gradient-to-br from-red-900/40 to-zinc-900" id="banner-preview-placeholder"></div>
         <img src="" class="hidden w-full h-full object-cover" id="banner-preview">
         {% endif %}
-        <label class="absolute inset-0 flex items-center justify-center bg-black/40
-                       opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer gap-3">
-            <div class="flex items-center gap-2 bg-black/70 rounded-full px-4 py-2">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+        <!-- Always-visible camera button bottom-right -->
+        <label class="absolute bottom-2 right-2 cursor-pointer">
+            <div class="flex items-center gap-1.5 bg-black/70 hover:bg-black/90 text-white
+                        rounded-full px-3 py-1.5 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span class="text-white text-[13px] font-medium">Change cover</span>
+                <span class="text-[12px] font-medium">Change cover</span>
             </div>
             <input type="file" name="banner_file" accept="image/*" class="hidden"
                    onchange="previewImg(this,'banner-preview','banner-preview-placeholder')">
         </label>
     </div>
 
-    <!-- Avatar preview + upload -->
-    <div class="px-4 -mt-10 mb-5">
-        <label class="relative w-20 h-20 block cursor-pointer group">
+    <!-- Avatar -->
+    <div class="px-4 -mt-10 mb-5 flex items-end gap-3">
+        <div class="relative flex-shrink-0">
             {% if user.avatar_url %}
             <img src="{{ user.avatar_url }}" id="avatar-preview"
                  class="w-20 h-20 rounded-full border-4 border-black object-cover">
@@ -55,17 +56,22 @@
             </div>
             <img src="" id="avatar-preview" class="hidden w-20 h-20 rounded-full border-4 border-black object-cover">
             {% endif %}
-            <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center
-                        opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                </svg>
-            </div>
-            <input type="file" name="avatar_file" accept="image/*" class="hidden"
-                   onchange="previewImg(this,'avatar-preview','avatar-placeholder')">
-        </label>
-        <p class="text-zinc-600 text-[12px] mt-1">Click to change photo · Max 2MB</p>
+
+            <!-- Always-visible camera badge bottom-right of avatar -->
+            <label class="absolute bottom-0 right-0 cursor-pointer">
+                <div class="w-7 h-7 bg-zinc-700 hover:bg-zinc-600 border-2 border-black rounded-full
+                            flex items-center justify-center transition-colors">
+                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <input type="file" name="avatar_file" accept="image/*" class="hidden"
+                       onchange="previewImg(this,'avatar-preview','avatar-placeholder')">
+            </label>
+        </div>
+        <p class="text-zinc-600 text-[12px] mb-1">Click the camera icon to change photo</p>
     </div>
 
     <div class="px-4 space-y-4">
@@ -115,10 +121,8 @@ function previewImg(input, previewId, placeholderId) {
         var preview = document.getElementById(previewId);
         preview.src = e.target.result;
         preview.classList.remove('hidden');
-        if (placeholderId) {
-            var ph = document.getElementById(placeholderId);
-            if (ph) ph.classList.add('hidden');
-        }
+        var ph = document.getElementById(placeholderId);
+        if (ph) ph.classList.add('hidden');
     };
     reader.readAsDataURL(input.files[0]);
 }
