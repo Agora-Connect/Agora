@@ -29,6 +29,7 @@ def inject_globals():
     notification_count = 0
     has_unread_messages = False
 
+    sidebar_events = []
     if current_user.is_authenticated:
         from app.models import Notification, Message
         notification_count = Notification.query.filter_by(
@@ -37,10 +38,13 @@ def inject_globals():
         has_unread_messages = Message.query.filter_by(
             recipient_id=current_user.id, is_read=False
         ).count() > 0
+        from app.blueprints.events import _fetch_events
+        sidebar_events = (_fetch_events(limit=5) or [])[:5]
 
     return {
         'notification_count': notification_count,
         'has_unread_messages': has_unread_messages,
+        'sidebar_events': sidebar_events,
     }
 
 
