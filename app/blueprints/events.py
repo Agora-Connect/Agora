@@ -41,39 +41,64 @@ def _fmt_dt(iso):
 
 
 def _fetch_events(limit=20):
-    now = time.time()
-    if _cache['data'] and (now - _cache['ts']) < CACHE_TTL:
+    now_ts = time.time()
+    if _cache['data'] and (now_ts - _cache['ts']) < CACHE_TTL:
         return _cache['data']
     try:
+        utc_now = datetime.now(timezone.utc)
         resp = http.get(HC_API, params={
-            'endsAfter': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S'),
-            'orderByField': 'startsOn',
+            'endsAfter':        utc_now.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'startsAfter':      utc_now.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'orderByField':     'startsOn',
             'orderByDirection': 'ascending',
-            'status': 'Approved',
-            'limit': limit,
-            'skip': 0,
+            'status':           'Approved',
+            'limit':            limit,
+            'skip':             0,
         }, timeout=6)
         resp.raise_for_status()
         events = []
         for e in resp.json().get('value', []):
-            date_str, time_str = _fmt_dt(e.get('startsOn', ''))
+            # Client-side guard: skip anything that started before today
+            starts_raw = e.get('startsOn', '')
+            try:
+                starts_dt = datetime.fromisoformat(starts_raw.replace('Z', '+00:00'))
+                if starts_dt.replace(tzinfo=timezone.utc) < utc_now.replace(tzinfo=None).replace(tzinfo=timezone.utc):
+                    pass  # still include — startsAfter API param should handle this
+            except Exception:
+                pass
+
+            date_str, time_str = _fmt_dt(starts_raw)
             events.append({
-                'id':       e.get('id'),
-                'name':     e.get('name', 'Untitled'),
-                'org':      e.get('organizationName', ''),
-                'location': e.get('location') or 'SCSU Campus',
-                'date':     date_str,
-                'time':     time_str,
-                'theme':    e.get('theme', ''),
+                'id':         e.get('id'),
+                'name':       e.get('name', 'Untitled'),
+                'org':        e.get('organizationName', ''),
+                'location':   e.get('location') or 'SCSU Campus',
+                'date':       date_str,
+                'time':       time_str,
+                'starts_raw': starts_raw,
+                'theme':      e.get('theme', ''),
                 'categories': e.get('categoryNames', []),
-                'benefits': e.get('benefitNames', []),
-                'rsvp':     e.get('rsvpTotal', 0),
-                'img':      _img(e.get('imagePath')),
-                'blurb':    _strip_html(e.get('description', ''))[:160],
-                'url':      f"{HC_BASE}/event/{e.get('id')}",
+                'benefits':   e.get('benefitNames', []),
+                'rsvp':       e.get('rsvpTotal', 0),
+                'img':        _img(e.get('imagePath')),
+                'blurb':      _strip_html(e.get('description', ''))[:160],
+                'url':        f"{HC_BASE}/event/{e.get('id')}",
             })
+
+        # Client-side filter: only future events
+        def _starts_future(ev):
+            try:
+                dt = datetime.fromisoformat(ev['starts_raw'].replace('Z', '+00:00'))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt > utc_now
+            except Exception:
+                return True  # keep if we can't parse
+
+        events = [ev for ev in events if _starts_future(ev)]
+
         _cache['data'] = events
-        _cache['ts']   = now
+        _cache['ts']   = now_ts
         return events
     except Exception:
         return None

@@ -67,26 +67,27 @@
         <!-- Featured first event — big image -->
         {% set ev = sidebar_events[0] %}
         <a href="{{ ev.url }}" target="_blank" rel="noopener" class="block group">
-            <div class="mx-3 mb-3 rounded-xl overflow-hidden relative">
+            <div class="mx-3 mb-3 rounded-xl overflow-hidden relative h-36
+                        {% if ev.theme == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-900
+                        {% elif ev.theme == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-900
+                        {% elif ev.theme == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-900
+                        {% elif ev.theme == 'Fundraising' %}bg-gradient-to-br from-green-700 to-green-900
+                        {% elif ev.theme == 'CommunityService' %}bg-gradient-to-br from-teal-700 to-teal-900
+                        {% elif ev.theme == 'Cultural' %}bg-gradient-to-br from-orange-700 to-orange-900
+                        {% elif ev.theme == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-700 to-sky-900
+                        {% else %}bg-gradient-to-br from-red-800 to-red-950{% endif %}">
+                <!-- Gradient initials shown when no image -->
+                <span class="absolute inset-0 flex items-center justify-center text-white/20 font-black text-5xl select-none">
+                    {{ ev.name[:2]|upper }}
+                </span>
+                <!-- Event image on top — if it fails onerror hides it, gradient shows through -->
                 {% if ev.img %}
                 <img src="{{ ev.img }}" alt="{{ ev.name }}"
-                     class="w-full h-36 object-cover"
-                     onerror="this.parentElement.classList.add('_fb')">
+                     class="absolute inset-0 w-full h-full object-cover"
+                     onerror="this.style.display='none'">
                 {% endif %}
-                <!-- fallback gradient shown when no image or image fails -->
-                <div class="{% if ev.img %}hidden{% endif %} w-full h-36 flex items-center justify-center text-white font-bold text-2xl
-                            {% if ev.theme == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-900
-                            {% elif ev.theme == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-900
-                            {% elif ev.theme == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-900
-                            {% elif ev.theme == 'Fundraising' %}bg-gradient-to-br from-green-700 to-green-900
-                            {% elif ev.theme == 'CommunityService' %}bg-gradient-to-br from-teal-700 to-teal-900
-                            {% elif ev.theme == 'Cultural' %}bg-gradient-to-br from-orange-700 to-orange-900
-                            {% elif ev.theme == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-700 to-sky-900
-                            {% else %}bg-gradient-to-br from-red-800 to-red-950{% endif %}">
-                    {{ ev.name[:2]|upper }}
-                </div>
-                <!-- overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <!-- Text overlay always on top -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
                 <div class="absolute bottom-0 left-0 right-0 p-2.5">
                     <p class="text-white font-semibold text-[13px] leading-snug line-clamp-2 group-hover:text-red-300 transition-colors">{{ ev.name }}</p>
                     <p class="text-red-400 text-[11px] mt-0.5">{{ ev.date }}{% if ev.time %} · {{ ev.time }}{% endif %}</p>
@@ -99,13 +100,8 @@
         <a href="{{ ev.url }}" target="_blank" rel="noopener"
            class="flex items-center gap-2.5 px-3 py-2 hover:bg-zinc-800/60 transition-colors group {% if not loop.last %}border-b border-zinc-800/50{% endif %}">
 
-            {% if ev.img %}
-            <img src="{{ ev.img }}" alt=""
-                 class="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-zinc-800"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-            {% endif %}
-            <div class="w-10 h-10 rounded-lg flex-shrink-0 items-center justify-center text-white font-bold text-[12px]
-                        {% if not ev.img %}flex{% else %}hidden{% endif %}
+            <!-- Thumbnail: gradient bg + image on top -->
+            <div class="w-10 h-10 rounded-lg flex-shrink-0 relative overflow-hidden
                         {% if ev.theme == 'Arts' %}bg-gradient-to-br from-purple-700 to-purple-900
                         {% elif ev.theme == 'Social' %}bg-gradient-to-br from-blue-700 to-blue-900
                         {% elif ev.theme == 'Spirituality' %}bg-gradient-to-br from-indigo-700 to-indigo-900
@@ -114,7 +110,12 @@
                         {% elif ev.theme == 'Cultural' %}bg-gradient-to-br from-orange-700 to-orange-900
                         {% elif ev.theme == 'ThoughtfulLearning' %}bg-gradient-to-br from-sky-700 to-sky-900
                         {% else %}bg-gradient-to-br from-red-800 to-red-950{% endif %}">
-                {{ ev.name[:2]|upper }}
+                <span class="absolute inset-0 flex items-center justify-center text-white/30 font-black text-[11px]">{{ ev.name[:2]|upper }}</span>
+                {% if ev.img %}
+                <img src="{{ ev.img }}" alt=""
+                     class="absolute inset-0 w-full h-full object-cover"
+                     onerror="this.style.display='none'">
+                {% endif %}
             </div>
 
             <div class="flex-1 min-w-0">
@@ -144,16 +145,14 @@
         {% for n in sidebar_news %}
         <a href="{{ n.url }}" target="_blank" rel="noopener"
            class="flex items-start gap-2.5 px-3 py-2.5 hover:bg-zinc-800/60 transition-colors group border-t border-zinc-800/50">
-            {% if n.img %}
-            <img src="{{ n.img }}" alt=""
-                 class="w-12 h-12 rounded-lg object-cover flex-shrink-0 bg-zinc-800"
-                 onerror="this.style.display='none'">
-            {% else %}
-            <div class="w-12 h-12 rounded-lg flex-shrink-0 bg-gradient-to-br from-red-800 to-red-950
-                        flex items-center justify-center text-white font-bold text-[13px]">
-                SC
+            <div class="w-12 h-12 rounded-lg flex-shrink-0 relative overflow-hidden bg-gradient-to-br from-red-800 to-red-950">
+                <span class="absolute inset-0 flex items-center justify-center text-white/30 font-black text-[11px]">SC</span>
+                {% if n.img %}
+                <img src="{{ n.img }}" alt=""
+                     class="absolute inset-0 w-full h-full object-cover"
+                     onerror="this.style.display='none'">
+                {% endif %}
             </div>
-            {% endif %}
             <div class="flex-1 min-w-0">
                 <p class="text-[12px] font-semibold leading-snug line-clamp-2 group-hover:text-red-400 transition-colors">{{ n.title }}</p>
                 {% if n.org %}
