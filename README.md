@@ -2,7 +2,7 @@
 
 Academic collaboration platform for St. Cloud State University students — a private, university-only space to ask questions, share resources, and connect with classmates.
 
-**Live:** [agora-production.up.railway.app](https://agora-production.up.railway.app)
+**Live:** [web-production-48b9b.up.railway.app](https://web-production-48b9b.up.railway.app)
 
 ---
 
@@ -24,12 +24,13 @@ Agora is a campus-exclusive social platform restricted to verified SCSU students
 | Layer | Technology |
 |-------|-----------|
 | Web framework | Flask 3.0 (Jinja2 templates, Blueprint routing) |
-| Database | PostgreSQL (Railway) via SQLAlchemy ORM |
+| Database | MySQL — designed and managed by the team, hosted on Railway |
+| ORM | SQLAlchemy + PyMySQL |
 | Auth | Flask-Login + Werkzeug password hashing |
 | Styling | Tailwind CSS (CDN, no build step) + Heroicons (inline SVG) |
 | Images | Pillow — server-side resize before base64 storage |
 | Campus data | Huskies Connect Presence API (events, news, orgs) |
-| Deployment | Railway (Flask + PostgreSQL, Gunicorn) |
+| Deployment | Railway (Flask + MySQL, Gunicorn) |
 
 ---
 
@@ -63,12 +64,6 @@ agora/
 ├── templates/
 │   ├── base.html           # Root layout with sidebar navigation
 │   ├── components/         # right_sidebar.html, post_card.html, etc.
-│   ├── auth/               # login.html, register.html
-│   ├── feed/               # home feed
-│   ├── forum/              # Q&A templates
-│   ├── profile/            # view.html, edit.html
-│   ├── groups/             # index, detail, private (join request)
-│   ├── events/             # Events listing
 │   └── ...
 └── static/
     └── css/styles.css
@@ -99,10 +94,10 @@ agora/
 ### Campus Events Sidebar
 - Live data from Huskies Connect — upcoming events with images, dates, locations
 - Campus news and student organizations from the same API
-- 15-minute server-side cache; fully automatic — no manual updates needed
+- 15-minute server-side cache; fully automatic
 
 ### Profile
-- Avatar and banner photo upload (Pillow resizing, stored as base64 in PostgreSQL)
+- Avatar and banner photo upload (Pillow resizing, stored as base64 in MySQL)
 - Bio, major, academic year
 - Reputation score displayed on profile
 
@@ -111,80 +106,46 @@ agora/
 ## Running Locally
 
 ```bash
-# 1. Clone and create a virtual environment
 git clone https://github.com/Agora-Connect/Agora.git
 cd Agora
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-# 2. Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# 3. Set environment variables
-cp .env.example .env
-# Edit .env — set DATABASE_URL and SECRET_KEY
-
-# 4. Run
+# create a .env file with DATABASE_URL and SECRET_KEY
 flask run
 ```
-
-The app will be available at `http://localhost:5000`.
 
 **Required environment variables:**
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string (e.g. `postgresql://user:pass@host/db`) |
-| `SECRET_KEY` | Flask session secret (any random string for dev) |
+| `DATABASE_URL` | MySQL connection string (`mysql://user:pass@host:port/db`) |
+| `SECRET_KEY` | Flask session secret |
 
 ---
 
 ## Deployment (Railway)
 
-The app is configured for one-click Railway deployment:
-
 - `Procfile` runs Gunicorn: `web: gunicorn run:app`
 - `runtime.txt` pins the Python version
-- `nixpacks.toml` controls the build environment
-- Database tables are auto-created at startup via `db.create_all()` inside `create_app()`
-- Schema migrations (e.g. column type changes) are applied at startup via `db.engine.execute()`
-
-Set `DATABASE_URL` and `SECRET_KEY` as Railway environment variables.
+- Database tables are auto-created at startup via `db.create_all()`
+- Set `DATABASE_URL` and `SECRET_KEY` as Railway environment variables
 
 ---
 
-## Data Models
+## Database
 
-Core SQLAlchemy models in `app/models.py`:
-
-| Model | Description |
-|-------|-------------|
-| `User` | Student account — display name, avatar, reputation, major, year |
-| `Post` | Feed post with optional anonymity and repost support |
-| `Problem` | Forum question linked to a course |
-| `Answer` | Answer to a Problem; one can be marked accepted |
-| `Resource` | Shared academic material with borrow workflow |
-| `Course` | University course (e.g. CSCI 411) |
-| `Enrollment` | M:N junction — User ↔ Course |
-| `Group` / `GroupMembership` | Study groups with membership, invitations, join requests |
-| `Follow` | Self-referential social graph |
-| `Notification` | Unified notification model (likes, follows, answers, invites) |
-| `Message` | Direct messages between users |
-| `Bookmark` | Saved posts |
-| `Repost` | Repost tracking |
+The MySQL database schema is fully designed and maintained by the team. See the [database](https://github.com/Agora-Connect/database) repository for the complete schema, queries, indexes, transactions, and application scripts.
 
 ---
 
 ## Organization
 
-This repository is part of the [Agora-Connect](https://github.com/Agora-Connect) GitHub organization:
-
 | Repository | Purpose |
 |-----------|---------|
 | [Agora](https://github.com/Agora-Connect/Agora) | **This repo** — production Flask application |
-| [docs](https://github.com/Agora-Connect/docs) | Design documents, ER diagrams, domain specification |
-| [backend](https://github.com/Agora-Connect/backend) | Early prototype (reference only, not production) |
-| [database](https://github.com/Agora-Connect/database) | Early SQLite prototype queries (reference only) |
+| [database](https://github.com/Agora-Connect/database) | MySQL schema, queries, indexes, transactions, MongoDB component |
+| [docs](https://github.com/Agora-Connect/docs) | Design documents, ER diagram, normalization, domain specification |
 
 ---
 
