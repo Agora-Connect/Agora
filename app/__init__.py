@@ -36,9 +36,20 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Auto-create any missing tables (safe for new models on Railway)
+    # Auto-create any missing tables + run safe column migrations
     with app.app_context():
         db.create_all()
+        # Widen avatar/banner columns from VARCHAR(500) to TEXT (idempotent)
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(db.text(
+                    'ALTER TABLE "user" '
+                    'ALTER COLUMN avatar_url TYPE TEXT, '
+                    'ALTER COLUMN banner_url TYPE TEXT'
+                ))
+                conn.commit()
+        except Exception:
+            pass  # Already TEXT, or SQLite (dev) — safe to ignore
 
     # Template filters & globals
     app.jinja_env.filters['timeago'] = timeago
