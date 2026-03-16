@@ -31,7 +31,7 @@
                                border border-zinc-800 outline-none focus:border-red-600">
                     <option value="">Select a course...</option>
                     {% for course in courses %}
-                    <option value="{{ course.id }}">{{ course.code }} — {{ course.name }}</option>
+                    <option value="{{ course.id }}">{{ course.code }}: {{ course.name }}</option>
                     {% endfor %}
                 </select>
                 {% if not courses %}

@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Agora{% endblock %}</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23DC2626'/><text x='50' y='72' font-size='68' font-family='system-ui,sans-serif' font-weight='900' fill='white' text-anchor='middle'>A</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23DC2626'/><polygon points='3,18 29,18 16,8' fill='white'/><rect x='3' y='18' width='26' height='2' fill='white'/><rect x='4' y='20' width='3' height='7' fill='white'/><rect x='11' y='20' width='3' height='7' fill='white'/><rect x='18' y='20' width='3' height='7' fill='white'/><rect x='25' y='20' width='3' height='7' fill='white'/><rect x='2' y='27' width='28' height='2.5' fill='white'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['Cinzel', 'Georgia', 'serif'] },
                     colors: {
                         primary: { DEFAULT: '#B91C1C', hover: '#991B1B' },
                         red: {
@@ -25,7 +25,7 @@
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { -webkit-font-smoothing: antialiased; }
         details summary::-webkit-details-marker { display: none; }

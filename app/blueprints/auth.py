@@ -4,7 +4,7 @@ from app.models import db, User
 
 auth_bp = Blueprint('auth', __name__)
 
-SCSU_DOMAIN = '@stcloudstate.edu'
+SCSU_DOMAINS = ('@stcloudstate.edu', '@go.stcloudstate.edu')
 
 
 @auth_bp.route('/')
@@ -58,8 +58,8 @@ def signup():
 
         if not name or not email or not username or not password:
             error = 'All fields are required.'
-        elif not email.endswith(SCSU_DOMAIN):
-            error = f'Only {SCSU_DOMAIN} email addresses are allowed.'
+        elif not any(email.endswith(d) for d in SCSU_DOMAINS):
+            error = 'Only @stcloudstate.edu or @go.stcloudstate.edu emails are allowed.'
         elif len(password) < 8:
             error = 'Password must be at least 8 characters.'
         elif not username.replace('_', '').isalnum():
