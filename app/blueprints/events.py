@@ -12,7 +12,7 @@ HC_API    = f'{HC_BASE}/api/discovery/event/search'
 HC_NEWS   = f'{HC_BASE}/api/discovery/newsfeed/search'
 HC_ORGS   = f'{HC_BASE}/api/discovery/organization/search'
 IMG_BASE  = 'https://se-images.campuslabs.com/clink/images'
-CACHE_TTL = 900  # 15 min
+CACHE_TTL = 3600  # 1 hour
 
 _cache      = {'data': None, 'ts': 0}
 _news_cache = {'data': None, 'ts': 0}

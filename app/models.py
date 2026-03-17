@@ -2,6 +2,7 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 db = SQLAlchemy()
 
@@ -34,8 +35,8 @@ class User(UserMixin, db.Model):
     major            = db.Column(db.String(255))
     year             = db.Column(db.String(50))
     bio              = db.Column(db.Text)
-    avatar_url       = db.Column(db.Text)
-    banner_url       = db.Column(db.Text)
+    avatar_url       = db.Column(MEDIUMTEXT)
+    banner_url       = db.Column(MEDIUMTEXT)
     reputation_score = db.Column(db.Integer, default=0)
     is_verified      = db.Column(db.Boolean, default=False)
     created_at       = db.Column(db.DateTime, default=datetime.utcnow)

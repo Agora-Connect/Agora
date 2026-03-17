@@ -71,11 +71,11 @@ def edit(username):
         current_user.major = request.form.get('major', '').strip()
         current_user.year  = request.form.get('year', '').strip()
 
-        avatar = _save_image('avatar_file', max_size=(400, 400))
+        avatar = _save_image('avatar_file', max_size=(200, 200), quality=75)
         if avatar:
             current_user.avatar_url = avatar
 
-        banner = _save_image('banner_file', max_size=(1200, 400))
+        banner = _save_image('banner_file', max_size=(900, 300), quality=70)
         if banner:
             current_user.banner_url = banner
 

@@ -36,9 +36,17 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Auto-create any missing tables
+    # Auto-create any missing tables + migrate image columns to MEDIUMTEXT
     with app.app_context():
         db.create_all()
+        try:
+            db.session.execute(db.text(
+                'ALTER TABLE `user` MODIFY COLUMN avatar_url MEDIUMTEXT, '
+                'MODIFY COLUMN banner_url MEDIUMTEXT'
+            ))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     # Template filters & globals
     app.jinja_env.filters['timeago'] = timeago
