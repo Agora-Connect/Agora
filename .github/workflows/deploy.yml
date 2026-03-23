@@ -35,7 +35,7 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --region us-west-1 --name agora-eks
+          aws eks update-kubeconfig --region us-west-1 --name agora-cluster
 
       - name: Deploy to EKS
         env:
