@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: 741448937760.dkr.ecr.us-west-1.amazonaws.com/agora
-  tag: 996ca03520773b894c7f9bac23763227f1c16ae6
+  tag: 30aba1ebcb00278fe8945b9399d4bba5ae95b361
   pullPolicy: Always
 
 service:
