@@ -15,6 +15,19 @@ terraform apply -auto-approve
 echo "Step 2: Connect kubectl to EKS"
 aws eks update-kubeconfig --region us-west-1 --name agora-cluster
 
+echo "Step 2.5: Push image to ECR if empty"
+IMAGE_COUNT=$(aws ecr list-images --repository-name agora --region us-west-1 --query 'imageIds' --output json | jq length)
+
+if [ "$IMAGE_COUNT" -eq 0 ]; then
+    echo "ECR is empty - building and pushing image..."
+    aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 741448937760.dkr.ecr.us-west-1.amazonaws.com
+    docker build -t 741448937760.dkr.ecr.us-west-1.amazonaws.com/agora:latest ~/Agora
+    docker push 741448937760.dkr.ecr.us-west-1.amazonaws.com/agora:latest
+    sed -i "s|tag:.*|tag: latest|" ~/Agora/helm/agora/values.yaml
+else
+    echo "ECR has images - skipping build"
+fi
+
 echo "Step 3: Create Kubernetes Secret"
 kubectl create secret generic agora-secrets \
   --from-literal=DATABASE_URL="mysql+pymysql://agora_admin:${DB_PASSWORD}@agora-db.cd6emqscs62y.us-west-1.rds.amazonaws.com:3306/agora" \
