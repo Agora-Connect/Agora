@@ -2,7 +2,7 @@
 
 Academic collaboration platform for St. Cloud State University students — a private, university-only space to ask questions, share resources, and connect with classmates.
 
-**Live:** [web-production-48b9b.up.railway.app](https://web-production-48b9b.up.railway.app)
+**Live:** [ec2-52-53-163-82.us-west-1.compute.amazonaws.com](http://ec2-52-53-163-82.us-west-1.compute.amazonaws.com)
 
 ---
 
@@ -24,13 +24,13 @@ Agora is a campus-exclusive social platform restricted to verified SCSU students
 | Layer | Technology |
 |-------|-----------|
 | Web framework | Flask 3.0 (Jinja2 templates, Blueprint routing) |
-| Database | MySQL — designed and managed by the team, hosted on Railway |
+| Database | MySQL — designed and managed by the team, hosted on AWS RDS |
 | ORM | SQLAlchemy + PyMySQL |
 | Auth | Flask-Login + Werkzeug password hashing |
 | Styling | Tailwind CSS (CDN, no build step) + Heroicons (inline SVG) |
 | Images | Pillow — server-side resize before base64 storage |
 | Campus data | Huskies Connect Presence API (events, news, orgs) |
-| Deployment | Railway (Flask + MySQL, Gunicorn) |
+| Deployment | AWS (EC2 t4g.micro + RDS MySQL + ECR, Gunicorn) |
 
 ---
 
@@ -124,12 +124,25 @@ flask run
 
 ---
 
-## Deployment (Railway)
+## Deployment (AWS)
 
-- `Procfile` runs Gunicorn: `web: gunicorn run:app`
-- `runtime.txt` pins the Python version
-- Database tables are auto-created at startup via `db.create_all()`
-- Set `DATABASE_URL` and `SECRET_KEY` as Railway environment variables
+The app runs on an EC2 t4g.micro (arm64) with RDS MySQL and ECR for container images.
+
+```bash
+# Copy and fill in credentials
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+
+# Provision all infrastructure, build + push image, start container
+./setup.sh
+
+# Tear everything down when done
+./teardown.sh
+```
+
+**Requirements:** `terraform`, `aws` CLI (configured), `podman`
+
+- `setup.sh` provisions VPC, RDS, ECR, EC2 via Terraform, builds and pushes the Docker image, verifies the app responds HTTP 200
+- `teardown.sh` runs `terraform destroy` and removes all AWS resources
 
 ---
 
