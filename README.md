@@ -2,8 +2,6 @@
 
 Academic collaboration platform for St. Cloud State University students — a private, university-only space to ask questions, share resources, and connect with classmates.
 
-**Live:** [ec2-52-53-163-82.us-west-1.compute.amazonaws.com](http://ec2-52-53-163-82.us-west-1.compute.amazonaws.com)
-
 ---
 
 ## What is Agora?
