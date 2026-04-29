@@ -89,13 +89,13 @@ class Course(db.Model):
 
 
 # ── Enrollment ───────────────────────────────────────────────────────────────
+# Weak entity — identity is the composite (user_id, course_id); no surrogate key.
 
 class Enrollment(db.Model):
     __tablename__ = 'enrollment'
 
-    id          = db.Column(db.Integer, primary_key=True)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'),   nullable=False)
-    course_id   = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'),   primary_key=True, nullable=False)
+    course_id   = db.Column(db.Integer, db.ForeignKey('course.id'), primary_key=True, nullable=False)
     enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User')
