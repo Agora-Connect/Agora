@@ -1,4 +1,5 @@
 venv/
+.venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -7,3 +8,4 @@ instance/
 .git
 .gitignore
 *.md
+terraform/

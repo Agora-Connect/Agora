@@ -1,4 +1,22 @@
+# Environment & secrets
+.env
+terraform/terraform.tfvars
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+instance/
+
+# Terraform state & cache
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+terraform/*.tfstate.*
+
+# macOS
+.DS_Store
